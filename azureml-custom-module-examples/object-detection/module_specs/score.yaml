@@ -36,6 +36,7 @@ implementation:
         - pycocotools==2.0.0
         - matplotlib==3.1.0
         - terminaltables==3.1.0
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/object-detection
     command:
     - python
     - -m
