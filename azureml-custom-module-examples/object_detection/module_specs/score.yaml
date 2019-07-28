@@ -4,11 +4,11 @@ category: Machine Learning\Score
 description: ObjDet score module
 inputs:
 - name: Trained model
-  type: ModelFolder
+  type: GenericFolder
   port: True
   description: Trained model folder
 - name: Input test data
-  type: TabularDataFolder
+  type: GenericFolder
   port: True
   description: input test data
 - name: Checkpoint file
