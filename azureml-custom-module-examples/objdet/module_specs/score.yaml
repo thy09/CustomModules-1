@@ -4,13 +4,27 @@ category: Machine Learning\Score
 description: ObjDet score module
 inputs:
 - name: Trained model
-  type: GenericFolder
+  type: ModelFolder
   port: True
   description: Trained model folder
 - name: Input test data
-  type: GenericFolder
+  type: TabularDataFolder
   port: True
   description: input test data
+- name: Checkpoint file
+  type: Mode
+  default: "htc_x101_64x4d_fpn_20e_20190408-497f2561.pth"
+  description: Model file name
+  options:
+    - htc_x101_64x4d_fpn_20e_20190408-497f2561.pth
+    - faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth
+- name: Config file
+  type: Mode
+  default: "htc_x101_64x4d_fpn_20e_16gpu.py"
+  description: config file name
+  options:
+    - htc_x101_64x4d_fpn_20e_16gpu.py
+    - faster_rcnn_r50_fpn_1x.py
 outputs:
 - name: Output prediction results
   type: TabularDataFolder
@@ -46,5 +60,9 @@ implementation:
     - inputValue: Trained model
     - --test_folder
     - inputValue: Input test data
+    - --checkpoint_filename
+    - inputValue: Checkpoint file
+    - --config_filename
+    - inputValue: Config file
     - --prediction_folder
     - outputPath: Output prediction results

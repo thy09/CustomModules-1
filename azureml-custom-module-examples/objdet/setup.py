@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(
-    name="obj-det",
+    name="objdet",
     version="0.0.1",
     description="Object Detection",
     packages=["script"],

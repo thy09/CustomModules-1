@@ -6,8 +6,8 @@ from .mmdet.apis import init_detector, inference_detector, show_result
 def parse_args():
     parser = argparse.ArgumentParser(description='MMDet test detector')
     parser.add_argument('--model_folder', default='./model_folder', help='model folder path')
-    # parser.add_argument('--config', help='test config file path')
-    # parser.add_argument('--checkpoint', help='checkpoint file')
+    parser.add_argument('--checkpoint_filename', default='', help='checkpoint filename')
+    parser.add_argument('--config_filename', default='', help='config filename')
     parser.add_argument('--test_folder', default='./test_images', help='test image folder')
     parser.add_argument('--prediction_folder', help='output result file')
     # parser.add_argument(
@@ -35,8 +35,10 @@ def main():
     if not os.path.exists(args.test_folder):
         os.makedirs(args.test_folder)
 
-    config_file = os.path.join(args.model_folder, 'faster_rcnn_r50_fpn_1x.py')
-    checkpoint_file = os.path.join(args.model_folder, 'faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth')
+    # config_file = os.path.join(args.model_folder, 'faster_rcnn_r50_fpn_1x.py')
+    # checkpoint_file = os.path.join(args.model_folder, 'faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth')
+    config_file = os.path.join(args.model_folder, args.config_filename)
+    checkpoint_file = os.path.join(args.model_folder, args.checkpoint_filename)
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image and show the results
