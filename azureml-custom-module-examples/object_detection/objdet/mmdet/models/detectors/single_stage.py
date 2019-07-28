@@ -3,7 +3,7 @@ import torch.nn as nn
 from .base import BaseDetector
 from .. import builder
 from ..registry import DETECTORS
-from .mmdet.core import bbox2result
+from objdet.mmdet.core import bbox2result
 print("before single stage")
 print(DETECTORS)
 

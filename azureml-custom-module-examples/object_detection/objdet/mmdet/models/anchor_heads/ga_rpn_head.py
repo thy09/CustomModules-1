@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import normal_init
 
-from .mmdet.core import delta2bbox
-from .mmdet.ops import nms
+from objdet.mmdet.core import delta2bbox
+from objdet.mmdet.ops import nms
 from .guided_anchor_head import GuidedAnchorHead
 from ..registry import HEADS
 

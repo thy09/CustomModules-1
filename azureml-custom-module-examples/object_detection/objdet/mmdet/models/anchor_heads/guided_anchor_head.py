@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from .mmdet.core import (AnchorGenerator, anchor_target, anchor_inside_flags,
+from objdet.mmdet.core import (AnchorGenerator, anchor_target, anchor_inside_flags,
                         ga_loc_target, ga_shape_target, delta2bbox,
                         multi_apply, multiclass_nms, force_fp32)
-from .mmdet.ops import DeformConv, MaskedConv2d
+from objdet.mmdet.ops import DeformConv, MaskedConv2d
 from ..builder import build_loss
 from .anchor_head import AnchorHead
 from ..registry import HEADS

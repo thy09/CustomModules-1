@@ -7,12 +7,12 @@ import torch
 from mmcv.runner import Runner, DistSamplerSeedHook, obj_from_dict
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
-from .mmdet import datasets
-from .mmdet.core import (DistOptimizerHook, DistEvalmAPHook,
+from objdet.mmdet import datasets
+from objdet.mmdet.core import (DistOptimizerHook, DistEvalmAPHook,
                         CocoDistEvalRecallHook, CocoDistEvalmAPHook,
                         Fp16OptimizerHook)
-from .mmdet.datasets import build_dataloader
-from .mmdet.models import RPN
+from objdet.mmdet.datasets import build_dataloader
+from objdet.mmdet.models import RPN
 from .env import get_root_logger
 
 

@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from .mmdet.core import (AnchorGenerator, anchor_target, delta2bbox,
+from objdet.mmdet.core import (AnchorGenerator, anchor_target, delta2bbox,
                         multi_apply, multiclass_nms, force_fp32)
 from ..builder import build_loss
 from ..registry import HEADS

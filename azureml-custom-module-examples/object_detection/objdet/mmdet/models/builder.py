@@ -1,6 +1,6 @@
 from torch import nn
 
-from .mmdet.utils import build_from_cfg
+from objdet.mmdet.utils import build_from_cfg
 from .registry import (BACKBONES, NECKS, ROI_EXTRACTORS, SHARED_HEADS, HEADS,
                        LOSSES, DETECTORS)
 

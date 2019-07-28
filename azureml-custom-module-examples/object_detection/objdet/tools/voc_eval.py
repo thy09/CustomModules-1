@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 import mmcv
 import numpy as np
 
-from .mmdet import datasets
-from .mmdet.core import eval_map
+from objdet.mmdet import datasets
+from objdet.mmdet.core import eval_map
 
 
 def voc_eval(result_file, dataset, iou_thr=0.5):

@@ -4,7 +4,7 @@ import torch.nn as nn
 from mmcv.cnn import constant_init, kaiming_init
 from mmcv.runner import load_checkpoint
 
-from .mmdet.core import auto_fp16
+from objdet.mmdet.core import auto_fp16
 from ..backbones import ResNet, make_res_layer
 from ..registry import SHARED_HEADS
 

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from .cascade_rcnn import CascadeRCNN
 from .. import builder
 from ..registry import DETECTORS
-from .mmdet.core import (bbox2roi, bbox2result, build_assigner, build_sampler,
+from objdet.mmdet.core import (bbox2roi, bbox2result, build_assigner, build_sampler,
                         merge_aug_masks)
 
 

@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 
 from .coco_utils import results2json, fast_eval_recall
 from .mean_ap import eval_map
-from .mmdet import datasets
+from objdet.mmdet import datasets
 
 
 class DistEvalHook(Hook):

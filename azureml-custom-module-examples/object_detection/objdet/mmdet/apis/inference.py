@@ -6,11 +6,11 @@ import pycocotools.mask as maskUtils
 import torch
 from mmcv.runner import load_checkpoint
 
-from .mmdet.core import get_classes
-from .mmdet.datasets import to_tensor
-from .mmdet.datasets.transforms import ImageTransform
-from .mmdet.models import build_detector
-from .mmdet.models.registry import (BACKBONES, NECKS, ROI_EXTRACTORS, SHARED_HEADS, HEADS,
+from objdet.mmdet.core import get_classes
+from objdet.mmdet.datasets import to_tensor
+from objdet.mmdet.datasets.transforms import ImageTransform
+from objdet.mmdet.models import build_detector
+from objdet.mmdet.models.registry import (BACKBONES, NECKS, ROI_EXTRACTORS, SHARED_HEADS, HEADS,
                        LOSSES, DETECTORS)
 
 

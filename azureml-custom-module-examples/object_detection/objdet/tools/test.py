@@ -10,10 +10,10 @@ import torch.distributed as dist
 from mmcv.runner import load_checkpoint, get_dist_info
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
-from .mmdet.apis import init_dist
-from .mmdet.core import results2json, coco_eval, wrap_fp16_model
-from .mmdet.datasets import build_dataloader, build_dataset
-from .mmdet.models import build_detector
+from objdet.mmdet.apis import init_dist
+from objdet.mmdet.core import results2json, coco_eval, wrap_fp16_model
+from objdet.mmdet.datasets import build_dataloader, build_dataset
+from objdet.mmdet.models import build_detector
 
 
 def single_gpu_test(model, data_loader, show=False):

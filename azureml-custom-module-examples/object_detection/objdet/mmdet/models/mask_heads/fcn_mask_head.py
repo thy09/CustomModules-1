@@ -7,7 +7,7 @@ import torch.nn as nn
 from ..builder import build_loss
 from ..registry import HEADS
 from ..utils import ConvModule
-from .mmdet.core import mask_target, force_fp32, auto_fp16
+from objdet.mmdet.core import mask_target, force_fp32, auto_fp16
 
 
 @HEADS.register_module

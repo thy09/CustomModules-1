@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .mmdet.core import bbox_overlaps
+from objdet.mmdet.core import bbox_overlaps
 from .utils import weighted_loss
 from ..registry import LOSSES
 

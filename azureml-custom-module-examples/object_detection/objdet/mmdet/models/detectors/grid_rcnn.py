@@ -4,7 +4,7 @@ from ..registry import DETECTORS
 import torch
 
 from .. import builder
-from .mmdet.core import bbox2roi, bbox2result, build_assigner, build_sampler
+from objdet.mmdet.core import bbox2roi, bbox2result, build_assigner, build_sampler
 
 
 @DETECTORS.register_module

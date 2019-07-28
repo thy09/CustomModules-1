@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from .mmdet.core import coco_eval
+from objdet.mmdet.core import coco_eval
 
 
 def main():

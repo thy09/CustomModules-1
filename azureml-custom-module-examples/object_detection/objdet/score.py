@@ -1,6 +1,6 @@
 import argparse
 import os
-from .mmdet.apis import init_detector, inference_detector, show_result
+from objdet.mmdet.apis import init_detector, inference_detector, show_result
 
 
 def parse_args():

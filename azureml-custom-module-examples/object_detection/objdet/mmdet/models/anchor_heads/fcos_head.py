@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from mmcv.cnn import normal_init
 
-from .mmdet.core import multi_apply, multiclass_nms, distance2bbox, force_fp32
+from objdet.mmdet.core import multi_apply, multiclass_nms, distance2bbox, force_fp32
 from ..builder import build_loss
 from ..registry import HEADS
 from ..utils import bias_init_with_prob, Scale, ConvModule
