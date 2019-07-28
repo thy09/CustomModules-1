@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 setup(
-    name="objdet",
+    name="obj_det",
     version="0.0.1",
     description="Object Detection",
-    packages=["script"],
+    packages=find_packages(),
     author="Jincheng Chen",
     license="MIT",
     include_package_data=True,
