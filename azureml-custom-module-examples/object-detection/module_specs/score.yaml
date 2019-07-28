@@ -1,0 +1,49 @@
+name: ObjDet Score
+id: d4098d60-4239-416a-ab41-1cd1e6dad761
+category: Machine Learning\Score
+description: ObjDet score module
+inputs:
+- name: Trained model
+  type: ModelFolder
+  port: True
+  description: Trained model folder
+- name: Input test data
+  type: TabularDataFolder
+  port: True
+  description: input test data
+outputs:
+- name: Output prediction results
+  type: TabularDataFolder
+  description: The output directory where prediction and evaluation results will be written.
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.7.3
+      - cython=0.29.12
+      - numpy=1.16.4
+      - py-opencv=3.4.2
+      - pip:
+        - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp37-cp37m-linux_x86_64.whl
+        - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp37-cp37m-linux_x86_64.whl
+        - git+https://github.com/chjinche/mmcv.git
+        - pycocotools==2.0.0
+        - matplotlib==3.1.0
+        - terminaltables==3.1.0
+    command:
+    - python
+    - -m
+    - script.score
+    args:
+    - --model_folder
+    - inputValue: Trained model
+    - --test_folder
+    - inputValue: Input test data
+    - --prediction_folder
+    - outputPath: Output prediction results
