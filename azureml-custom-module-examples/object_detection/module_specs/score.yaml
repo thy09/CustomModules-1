@@ -1,5 +1,5 @@
 name: ObjDet Score
-id: 4aa42d64-cc65-43e1-9c57-5ca4af8f039e
+id: d4098d60-4239-416a-ab41-1cd1e6dad761
 category: Machine Learning\Score
 description: ObjDet score module
 inputs:
@@ -54,7 +54,7 @@ implementation:
     command:
     - python
     - -m
-    - objdet.scorer
+    - objdet.score
     args:
     - --model_folder
     - inputValue: Trained model
