@@ -41,7 +41,7 @@ implementation:
       - pytorch
       dependencies:
       - ipython
-      - python=3.7.3
+      - python=3.6.2
       - cython=0.29.12
       - numpy=1.16.4
       - py-opencv=3.4.2
