@@ -1,0 +1,69 @@
+name: DetSegMM Score
+id: 9f00368b-8ee0-49dc-968d-6ab9e0e67c60
+category: Machine Learning\Score
+description: object detection and instance segmentation by open-mmlab score module
+inputs:
+- name: Trained model
+  type: GenericFolder
+  port: True
+  description: Trained model folder
+- name: Input test data
+  type: GenericFolder
+  port: True
+  description: input test data
+- name: Checkpoint file
+  type: Mode
+  default: "htc_x101_64x4d_fpn_20e_20190408-497f2561.pth"
+  description: Model file name
+  options:
+    - htc_x101_64x4d_fpn_20e_20190408-497f2561.pth
+    - faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth
+- name: Config file
+  type: Mode
+  default: "htc_x101_64x4d_fpn_20e_16gpu.py"
+  description: config file name
+  options:
+    - htc_x101_64x4d_fpn_20e_16gpu.py
+    - faster_rcnn_r50_fpn_1x.py
+outputs:
+- name: Output prediction results
+  type: TabularDataFolder
+  description: The output directory where prediction and evaluation results will be written.
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      - pytorch
+      dependencies:
+      - python=3.7.3
+      - cython=0.29.12
+      - numpy=1.16.4
+      - py-opencv=3.4.2
+      - pytorch
+      - torchvision
+      - cudatoolkit=10.0
+      - pip:
+        - git+https://github.com/chjinche/mmcv.git
+        - pycocotools==2.0.0
+        - git+https://github.com/chjinche/mmdetection.git
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-mmlab
+    command:
+    - python
+    - -m
+    - detsegmm.score
+    args:
+    - --model_folder
+    - inputValue: Trained model
+    - --test_folder
+    - inputValue: Input test data
+    - --checkpoint_filename
+    - inputValue: Checkpoint file
+    - --config_filename
+    - inputValue: Config file
+    - --prediction_folder
+    - outputPath: Output prediction results
