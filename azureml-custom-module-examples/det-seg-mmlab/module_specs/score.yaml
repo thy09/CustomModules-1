@@ -45,8 +45,8 @@ implementation:
       - cython=0.29.12
       - numpy=1.16.4
       - py-opencv=3.4.2
-      - pytorch
-      - torchvision
+      - pytorch=1.1.0
+      - torchvision=0.3.0
       - cudatoolkit=10.0
       - pip:
         - git+https://github.com/chjinche/mmcv.git
