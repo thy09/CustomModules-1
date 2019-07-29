@@ -1,3 +1,7 @@
+import torch
+print("imported torch")
+print(torch.__version__)
+print(torch.__file__)
 import argparse
 import os
 from mmdet.apis import init_detector, inference_detector, show_result
