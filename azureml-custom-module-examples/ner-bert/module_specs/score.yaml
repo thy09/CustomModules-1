@@ -2,6 +2,7 @@ name: NER Score
 id: 2aeed4d7-1b2c-431f-a5e2-bbe5f72d3df9
 category: Machine Learning\Score
 description: NER score module
+owner: Jincheng Chen
 inputs:
 - name: Trained model
   type: ModelFolder
