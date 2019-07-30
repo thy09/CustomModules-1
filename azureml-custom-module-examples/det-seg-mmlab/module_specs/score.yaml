@@ -4,7 +4,7 @@ category: Machine Learning\Score
 description: object detection and instance segmentation by open-mmlab score module
 inputs:
 - name: Trained model
-  type: GenericFolder
+  type: ModelFolder
   port: True
   description: Trained model folder
 - name: Input test data
