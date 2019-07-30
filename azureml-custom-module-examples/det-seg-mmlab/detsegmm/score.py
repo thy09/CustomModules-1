@@ -28,7 +28,8 @@ def main():
     # build the model from a config file and a checkpoint file
     model = init_detector(config_file, checkpoint_file, device='cuda:0')
     # test a single image and show the results
-    imgs = [os.path.join(args.test_folder, img) for img in os.listdir(args.test_folder)]
+    imgs = [os.path.join(args.test_folder, img) for img in os.listdir(args.test_folder)
+            if (img.endswith('.jpg') or img.endswith('.jpeg'))]
     print(imgs)
     for i, result in enumerate(inference_detector(model, imgs)):
         show_result(imgs[i], result, model.CLASSES, out_file=os.path.join(args.prediction_folder, 'result_{}.jpg'.format(i)))
