@@ -62,7 +62,6 @@ def main():
     for i, image in enumerate(img_list):
         # compute predictions
         predictions = coco_demo.run_on_opencv_image(image)
-        print()
         imshow(predictions, args.prediction_folder, 'result_{}.jpg'.format(i))
 
 
