@@ -1,3 +1,8 @@
+import torch
+from torch.utils.cpp_extension import CUDA_HOME
+print(torch.cuda.is_available())
+print(CUDA_HOME)
+
 from PIL import Image
 from azureml.core.run import Run
 from maskrcnn_benchmark.config import cfg
