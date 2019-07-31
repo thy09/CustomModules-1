@@ -32,14 +32,14 @@ def load_image_folder(img_folder):
     return img_list
 
 
-def imshow(img, out_file):
+def imshow(img, out_folder, out_filename):
     run = Run.get_context()
     img_plt = plt.figure(1)
     plt.imshow(img[:, :, [2, 1, 0]])
     plt.axis("off")
     # plt.show()
-    run.log_image("prediction/"+out_file, plot=img_plt)
-    img_plt.savefig(out_file)
+    run.log_image("prediction/"+out_filename, plot=img_plt)
+    img_plt.savefig(os.path.join(out_folder, out_filename))
 
 
 def main():
@@ -63,7 +63,7 @@ def main():
         # compute predictions
         predictions = coco_demo.run_on_opencv_image(image)
         print()
-        imshow(predictions, os.path.join(args.prediction_folder, 'result_{}.jpg'.format(i)))
+        imshow(predictions, args.prediction_folder, 'result_{}.jpg'.format(i))
 
 
 if __name__ == '__main__':
