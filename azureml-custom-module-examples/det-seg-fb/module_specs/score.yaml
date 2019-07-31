@@ -35,10 +35,6 @@ implementation:
       dependencies:
       - ipython
       - python=3.6.2
-      - ninja
-      - yacs=0.1.6
-      - matplotlib=3.1.1
-      - tqdm
       - cython=0.29.12
       - numpy=1.16.4
       - py-opencv=3.4.2
@@ -46,10 +42,14 @@ implementation:
       - torchvision=0.3.0
       - cudatoolkit=10.0
       - pip:
+        - ninja
+        - yacs==0.1.6
+        - matplotlib==3.1.1
+        - tqdm
         - azureml==0.2.7
         - azureml-core==1.0.43
         - pycocotools==2.0.0
-        - apex==0.1
+        - git+https://github.com/chjinche/apex.git
         - git+https://github.com/facebookresearch/maskrcnn-benchmark.git
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-fb
     command:
