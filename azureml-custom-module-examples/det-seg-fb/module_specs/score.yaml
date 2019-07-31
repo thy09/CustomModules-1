@@ -50,7 +50,7 @@ implementation:
         - azureml-core==1.0.43
         - pycocotools==2.0.0
         - git+https://github.com/chjinche/apex.git
-        - git+https://github.com/facebookresearch/maskrcnn-benchmark.git
+        - git+https://github.com/chjinche/maskrcnn-benchmark.git
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-fb
     command:
     - python
