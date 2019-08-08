@@ -4,6 +4,7 @@ import os
 import json
 import numpy as np
 import skimage.draw
+from shutil import copyfile
 from mrcnn import utils
 
 
@@ -13,7 +14,7 @@ num_classes = 1
 
 class BalloonDataset(utils.Dataset):
 
-    def load_balloon(self, dataset_dir):
+    def load_balloon(self, dataset_dir, output_dataset_dir):
         """Load a subset of the Balloon dataset."""
         # Add classes. We have only one class to add.
         self.add_class("balloon", 1, "balloon")
@@ -21,7 +22,10 @@ class BalloonDataset(utils.Dataset):
         ann_file_path = os.path.join(os.path.join(dataset_dir, "via_region_data.json"))
         if os.path.exists(dataset_dir) and not os.path.exists(ann_file_path):
             for img_name in os.listdir(dataset_dir):
-                image_path = os.path.join(dataset_dir, img_name)
+                src_img_path = os.path.join(dataset_dir, img_name)
+                tgt_img_path = os.path.join(output_dataset_dir, img_name)
+                copyfile(src_img_path, tgt_img_path)
+                image_path = os.path.join(output_dataset_dir, img_name)
                 image = skimage.io.imread(image_path)
                 height, width = image.shape[:2]
                 self.add_image(
@@ -65,7 +69,11 @@ class BalloonDataset(utils.Dataset):
                 # load_mask() needs the image size to convert polygons to masks.
                 # Unfortunately, VIA doesn't include it in JSON, so we must read
                 # the image. This is only managable since the dataset is tiny.
-                image_path = os.path.join(dataset_dir, a['filename'])
+                # image_path = os.path.join(dataset_dir, a['filename'])
+                src_img_path = os.path.join(dataset_dir, a['filename'])
+                tgt_img_path = os.path.join(output_dataset_dir, a['filename'])
+                copyfile(src_img_path, tgt_img_path)
+                image_path = os.path.join(output_dataset_dir, a['filename'])
                 image = skimage.io.imread(image_path)
                 height, width = image.shape[:2]
                 self.add_image(
@@ -116,7 +124,7 @@ def main():
     if not os.path.exists(args.out_dataset_folder):
         os.makedirs(args.out_dataset_folder)
     dataset = BalloonDataset()
-    dataset.load_balloon(args.dataset_folder)
+    dataset.load_balloon(args.dataset_folder, args.out_dataset_folder)
     dataset.prepare()
     out_file_path = os.path.join(args.out_dataset_folder, args.out_dataset_file)
     with open(out_file_path, 'wb') as fout:
