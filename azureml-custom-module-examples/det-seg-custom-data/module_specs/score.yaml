@@ -1,0 +1,60 @@
+name: DetSeg Train
+id: 92f3d3c9-dac1-44a8-b17b-01c4297ff4fe
+category: Machine Learning\Score
+description: Score module for custom dataset in object detection and instance segmentation
+inputs:
+- name: Input model folder
+  type: ModelFolder
+  port: True
+  description: Input model folder
+- name: Input score data folder
+  type: GenericFolder
+  port: True
+  description: Input score data folder
+- name: Input score data file
+  type: Mode
+  default: "score.pkl"
+  description: Input score data file
+  options:
+    - train.pkl
+    - val.pkl
+    - score.pkl
+outputs:
+- name: Output evaluation and preditcion
+  type: GenericFolder
+  description: The output directory where prediction and evaluation results will be written.
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - ipython
+      - python=3.6.2
+      - cython=0.29.12
+      - numpy=1.16.4
+      - py-opencv=3.4.2
+      - pip:
+        - azureml==0.2.7
+        - azureml-core==1.0.43
+        - matplotlib==3.1.1
+        - pycocotools==2.0.0
+        - git+https://github.com/chjinche/Mask_RCNN.git
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
+    command:
+    - python
+    - -m
+    - detsegcustomdata.score
+    args:
+    - --model_folder
+    - inputValue: Input model folder
+    - --dataset_score_folder
+    - inputValue: Input score data folder
+    - --dataset_score_file
+    - inputValue: Input score data file
+    - --prediction_folder
+    - outputPath: Output evaluation and preditcion

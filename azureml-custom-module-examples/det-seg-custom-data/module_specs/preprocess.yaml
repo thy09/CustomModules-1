@@ -1,0 +1,52 @@
+name: Balloon Preprocess
+id: f0d18aba-76dc-4690-ac7e-ba099c979a8b
+category: Machine Learning\Preprocess
+description: Preprocess module for custom dataset in object detection and instance segmentation
+inputs:
+- name: Input data folder
+  type: GenericFolder
+  port: True
+  description: Input test data
+- name: Output data file name
+  type: Mode
+  default: "train.pkl"
+  description: Preprocessed data in pickle file
+  options:
+    - train.pkl
+    - val.pkl
+    - score.pkl
+outputs:
+- name: Output data folder
+  type: GenericFolder
+  description: Preprocessed data folder
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - ipython
+      - python=3.6.2
+      - cython=0.29.12
+      - numpy=1.16.4
+      - py-opencv=3.4.2
+      - pip:
+        - matplotlib==3.1.1
+        - pycocotools==2.0.0
+        - git+https://github.com/chjinche/Mask_RCNN.git
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
+    command:
+    - python
+    - -m
+    - detsegcustomdata.preprocess
+    args:
+    - --dataset_folder
+    - inputValue: Input data folder
+    - --out_dataset_file
+    - inputValue: Output data file name
+    - --out_dataset_folder
+    - outputPath: Output data folder

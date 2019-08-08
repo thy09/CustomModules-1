@@ -1,0 +1,113 @@
+name: DetSeg Train
+id: 1e827585-d4fb-4245-9409-aaafad94099a
+category: Machine Learning\Train
+description: Train module for custom dataset in object detection and instance segmentation
+inputs:
+- name: Input pretrained model folder
+  type: ModelFolder
+  port: True
+  description: Input pretrained model folder
+- name: Input pretrained model file
+  type: Mode
+  default: "mask_rcnn_coco.h5"
+  description: Pretrained model file name
+  options:
+    - mask_rcnn_coco.h5
+    - resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
+- name: Input train data folder
+  type: GenericFolder
+  port: True
+  description: Input train data folder
+- name: Input train data file
+  type: Mode
+  default: "train.pkl"
+  description: Input train data file
+  options:
+    - train.pkl
+    - val.pkl
+    - score.pkl
+- name: Input val data folder
+  type: GenericFolder
+  port: True
+  description: Input validation data folder
+- name: Input val data file
+  type: Mode
+  default: "val.pkl"
+  description: Input validation data file
+  options:
+    - train.pkl
+    - val.pkl
+    - score.pkl
+- name: GPU count
+  type: Int
+  default: 2
+  description: GPU count
+- name: Step per epoch
+  type: Int
+  default: 100
+  description: Number of training steps per epoch
+- name: Detection min confidence
+  type: Float
+  default: 0.9
+  description: Skip detections confidence
+- name: Epochs
+  type: Int
+  default: 30
+  description: Training epochs
+- name: Learning rate
+  type: Float
+  default: 0.001
+  description: Learning rate
+outputs:
+- name: Output model folder
+  type: ModelFoder
+  description: Trained model folder
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - ipython
+      - python=3.6.2
+      - cython=0.29.12
+      - numpy=1.16.4
+      - py-opencv=3.4.2
+      - pip:
+        - matplotlib==3.1.1
+        - pycocotools==2.0.0
+        - git+https://github.com/chjinche/Mask_RCNN.git
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
+    command:
+    - python
+    - -m
+    - detsegcustomdata.train
+    args:
+    - --pretrained_model_folder
+    - inputValue: Input pretrained model folder
+    - --pretrained_model_file
+    - inputValue: Input pretrained model file
+    - --dataset_train_folder
+    - inputValue: Input train data folder
+    - --dataset_train_file
+    - inputValue: Input train data file
+    - --dataset_val_folder
+    - inputValue: Input val data folder
+    - --dataset_val_file
+    - inputValue: Input val data file
+    - --gpu_cnt
+    - inputValue: GPU count
+    - --step_per_epoch
+    - inputValue: Step per epoch
+    - --det_min_conf
+    - inputValue: Detection min confidence
+    - --epochs
+    - inputValue: Epochs
+    - --lr
+    - inputValue: Learning rate
+    - --model_folder
+    - outputPath: Output model folder
