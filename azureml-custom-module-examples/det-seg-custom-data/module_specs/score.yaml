@@ -1,4 +1,4 @@
-name: DetSeg Train
+name: DetSeg Score
 id: 92f3d3c9-dac1-44a8-b17b-01c4297ff4fe
 category: Machine Learning\Score
 description: Score module for custom dataset in object detection and instance segmentation
