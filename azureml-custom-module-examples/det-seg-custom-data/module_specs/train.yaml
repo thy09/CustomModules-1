@@ -60,7 +60,7 @@ inputs:
   description: Learning rate
 outputs:
 - name: Output model folder
-  type: ModelFoder
+  type: ModelFolder
   description: Trained model folder
 implementation:
   container:
