@@ -7,7 +7,7 @@ import tensorflow as tf
 import pickle
 import random
 from mrcnn import model as modellib, utils
-from preprocess import CustomDataset
+from .preprocess import CustomDataset
 
 
 class InferenceConfig(CustomConfig):
