@@ -4,34 +4,34 @@ import os
 import json
 import numpy as np
 import skimage.draw
-from shutil import copyfile
 from mrcnn import utils
 
 
-name = "balloon"
+source_name = "balloon"
 num_classes = 1
 
 
-class BalloonDataset(utils.Dataset):
+class CustomDataset(utils.Dataset):
 
-    def load_balloon(self, dataset_dir, output_dataset_dir):
+    def load_balloon(self, dataset_dir):
         """Load a subset of the Balloon dataset."""
+        if not os.path.exists(dataset_dir):
+            logger.info("dataset folder does not exist.")
+            return
         # Add classes. We have only one class to add.
-        self.add_class("balloon", 1, "balloon")
+        self.add_class(source_name, 1, source_name)
         # # Train or validation dataset?
         ann_file_path = os.path.join(os.path.join(dataset_dir, "via_region_data.json"))
-        if os.path.exists(dataset_dir) and not os.path.exists(ann_file_path):
+        if not os.path.exists(ann_file_path):
             for img_name in os.listdir(dataset_dir):
-                src_img_path = os.path.join(dataset_dir, img_name)
-                tgt_img_path = os.path.join(output_dataset_dir, img_name)
-                copyfile(src_img_path, tgt_img_path)
-                image_path = os.path.join(output_dataset_dir, img_name)
+                image_path = os.path.join(dataset_dir, img_name)
                 image = skimage.io.imread(image_path)
                 height, width = image.shape[:2]
                 self.add_image(
-                    "balloon",
+                    source=source_name,
                     image_id=img_name,  # use file name as a unique image id
-                    path=image_path,
+                    path='',
+                    image=image,
                     width=width, height=height,
                     polygons=None)
         else:
@@ -69,30 +69,51 @@ class BalloonDataset(utils.Dataset):
                 # load_mask() needs the image size to convert polygons to masks.
                 # Unfortunately, VIA doesn't include it in JSON, so we must read
                 # the image. This is only managable since the dataset is tiny.
-                # image_path = os.path.join(dataset_dir, a['filename'])
-                src_img_path = os.path.join(dataset_dir, a['filename'])
-                tgt_img_path = os.path.join(output_dataset_dir, a['filename'])
-                copyfile(src_img_path, tgt_img_path)
-                image_path = os.path.join(output_dataset_dir, a['filename'])
+                image_path = os.path.join(dataset_dir, a['filename'])
                 image = skimage.io.imread(image_path)
                 height, width = image.shape[:2]
                 self.add_image(
-                    "balloon",
+                    source=source_name,
                     image_id=a['filename'],  # use file name as a unique image id
-                    path=image_path,
+                    path='',
+                    image=image,
                     width=width, height=height,
                     polygons=polygons)
 
+    def add_image(self, source, image_id, path, image, **kwargs):
+        image_info = {
+            "id": image_id,
+            "source": source,
+            "path": path,
+            "image": image
+        }
+        image_info.update(kwargs)
+        self.image_info.append(image_info)
+
+    def load_image(self, image_id):
+        """Load the specified image and return a [H,W,3] Numpy array.
+        """
+        # Load image
+        # image = skimage.io.imread(self.image_info[image_id]['path'])
+        image = self.image_info[image_id]['image']
+        # If grayscale. Convert to RGB for consistency.
+        if image.ndim != 3:
+            image = skimage.color.gray2rgb(image)
+        # If has an alpha channel, remove it for consistency
+        if image.shape[-1] == 4:
+            image = image[..., :3]
+        return image
+
     def load_mask(self, image_id):
         """Generate instance masks for an image.
-       Returns:
+        Returns:
         masks: A bool array of shape [height, width, instance count] with
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
         # If not a balloon dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        if (image_info["source"] != "balloon") or (image_info["polygons"] is None):
+        if (image_info["source"] != source_name) or (image_info["polygons"] is None):
             return super(self.__class__, self).load_mask(image_id)
 
         # Convert polygons to a bitmap mask of shape
@@ -109,13 +130,13 @@ class BalloonDataset(utils.Dataset):
         # one class ID only, we return an array of 1s
         return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
 
-    def image_reference(self, image_id):
-        """Return the path of the image."""
-        info = self.image_info[image_id]
-        if info["source"] == "balloon":
-            return info["path"]
-        else:
-            super(self.__class__, self).image_reference(image_id)
+    # def image_reference(self, image_id):
+    #     """Return the path of the image."""
+    #     info = self.image_info[image_id]
+    #     if info["source"] == source_name:
+    #         return info["path"]
+    #     else:
+    #         super(self.__class__, self).image_reference(image_id)
 
 
 def main():
@@ -123,8 +144,8 @@ def main():
     args, _ = parser.parse_known_args()
     if not os.path.exists(args.out_dataset_folder):
         os.makedirs(args.out_dataset_folder)
-    dataset = BalloonDataset()
-    dataset.load_balloon(args.dataset_folder, args.out_dataset_folder)
+    dataset = CustomDataset()
+    dataset.load_balloon(args.dataset_folder)
     dataset.prepare()
     out_file_path = os.path.join(args.out_dataset_folder, args.out_dataset_file)
     with open(out_file_path, 'wb') as fout:

@@ -1,5 +1,4 @@
 from .arg_opts import score_opts, logger
-from .preprocess import *
 from .train import CustomConfig
 from .visualize import display_instances
 import os
@@ -8,6 +7,7 @@ import tensorflow as tf
 import pickle
 import random
 from mrcnn import model as modellib, utils
+from preprocess import CustomDataset
 
 
 class InferenceConfig(CustomConfig):
@@ -73,8 +73,9 @@ def main():
     for image_id in dataset_score.image_ids:
         image = dataset_score.load_image(image_id)
         info = dataset_score.image_info[image_id]
-        logger.info("image ID: {}.{} ({}) {}".format(
-            info["source"], info["id"], image_id, dataset_score.image_reference(image_id)))
+        # logger.info("image ID: {}.{} ({}) {}".format(
+        #     info["source"], info["id"], image_id, dataset_score.image_reference(image_id)))
+        logger.info("image ID: {}.{} ({})".format(info["source"], info["id"], image_id))
         # Run object detection
         results = model.detect([image], verbose=1)
         # Display results

@@ -1,5 +1,5 @@
 from .arg_opts import train_opts, logger
-from .preprocess import *
+from .preprocess import CustomDataset, source_name, num_classes
 import os
 import pickle
 from mrcnn.config import Config
@@ -20,11 +20,11 @@ class CustomConfig(Config):
     #     self.GPU_COUNT = gpu_cnt
     #     # Number of classes (including background)
     #     self.NUM_CLASSES = (1 + num_classes)
-    #     # Number of training steps per epoch    
+    #     # Number of training steps per epoch
     #     self.STEPS_PER_EPOCH = step_per_epoch
     #     # Skip detections with < 90% confidence
     #     self.DETECTION_MIN_CONFIDENCE = det_min_conf
-    NAME = name
+    NAME = source_name
     GPU_COUNT = args.gpu_cnt
     # Number of classes (including background)
     NUM_CLASSES = (1 + num_classes)
@@ -70,12 +70,9 @@ def load_pretrained_model(model, pretrained_model_path):
 
 
 def main():
-    # parser = train_opts()
-    # args, _ = parser.parse_known_args()
     if not os.path.exists(args.model_folder):
         os.makedirs(args.model_folder)
     # Configurations
-    # config = CustomConfig(name=args.name, gpu_cnt=args.gpu_cnt, num_classes=args.num_classes, step_per_epoch=args.step_per_epoch)
     config = CustomConfig()
     config.display()
     # Create model
