@@ -65,3 +65,7 @@ implementation:
     - inputValue: Config file
     - --prediction_folder
     - outputPath: Output prediction results
+  invoking:
+    module: detsegfb.score
+    class: MaskRCNNBenchMark
+    func: run
