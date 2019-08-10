@@ -8,7 +8,7 @@ inputs:
   port: True
   description: Trained model folder
 - name: Input test data
-  type: GenericFolder
+  type: TabularDataFolder
   port: True
   description: input test data
 - name: Config file
