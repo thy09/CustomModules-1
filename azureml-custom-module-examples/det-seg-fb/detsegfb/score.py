@@ -69,7 +69,8 @@ class MaskRCNNBenchMark:
         for i, image in enumerate(img_list):
             # compute predictions
             predictions = self.coco_demo.run_on_opencv_image(image)
-            out_img_str_list.append((predictions, prediction_folder, 'result_{}.jpg'.format(i)))
+            out_fig_str = imshow(predictions, prediction_folder, 'result_{}.jpg'.format(i))
+            out_img_str_list.append(out_fig_str)
         df = pd.DataFrame(out_img_str_list, columns=['result'])
         return df
 
