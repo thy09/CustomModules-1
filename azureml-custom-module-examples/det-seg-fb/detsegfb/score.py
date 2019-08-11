@@ -14,6 +14,7 @@ import json
 import fire
 import base64
 import pandas as pd
+import pyarrow.parquet as pq
 
 
 def load_image_folder(input_df):
