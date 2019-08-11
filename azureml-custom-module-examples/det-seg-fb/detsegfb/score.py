@@ -49,6 +49,7 @@ class MaskRCNNBenchMark:
         # this makes our figures bigger
         pylab.rcParams['figure.figsize'] = 20, 12
         config_file_name = meta.get('Config file', '')
+        print(os.path.join(model_folder, config_file_name))
         cfg.merge_from_file(os.path.join(model_folder, config_file_name))
         # manual override some options
         # only "cuda" and "cpu" are valid device types
@@ -72,8 +73,9 @@ class MaskRCNNBenchMark:
         return df
 
 
-def test(model_folder, test_folder, prediction_folder):
-    maskrcnn = MaskRCNNBenchMark(model_folder)
+def test(model_folder, test_folder, prediction_folder, config_filename):
+    meta = {'Config file': str(config_filename)}
+    maskrcnn = MaskRCNNBenchMark(model_folder, meta=meta)
     maskrcnn.run(test_folder=test_folder, prediction_folder=prediction_folder)
 
     # Dump data_type.json as a work around until SMT deploys
