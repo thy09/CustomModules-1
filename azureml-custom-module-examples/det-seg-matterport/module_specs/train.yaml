@@ -1,0 +1,46 @@
+name: DetSegMP Train
+id: 8bc62fd1-ffaf-447c-80ea-ff6420f88b92
+category: Machine Learning\Train
+description: object detection and instance segmentation by matterport inc
+inputs:
+- name: Trained model
+  type: ModelFolder
+  port: True
+  description: Trained model folder
+- name: Model file
+  type: Mode
+  default: "mask_rcnn_coco.h5"
+  description: Model file name
+  options:
+    - mask_rcnn_coco.h5
+    - mask_rcnn_balloon_0025.h5
+outputs:
+- name: Output trained model
+  type: ModelFolder
+  description: The output model directory
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: True
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - ipython
+      - python=3.6.2
+      - pip:
+        - fire==0.1.3
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-matterport
+    command:
+    - python
+    - -m
+    - detsegmatterport.train
+    args:
+    - --model_folder
+    - inputValue: Trained model
+    - --model_filename
+    - inputValue: Model file
+    - --out_model_folder
+    - outputPath: Output trained model
