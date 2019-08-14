@@ -38,8 +38,8 @@ implementation:
       - cython=0.29.12
       - numpy=1.16.4
       - py-opencv=3.4.2
-      - scikit-image=0.15.0
       - gcc
+      - scikit-image=0.15.0
       - pip:
         - pyarrow==0.14.0
         - fire==0.1.3

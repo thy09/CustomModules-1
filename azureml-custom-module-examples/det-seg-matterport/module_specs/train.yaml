@@ -20,9 +20,9 @@ outputs:
   description: The output model directory
 implementation:
   container:
-    runConfig:
-      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
-      gpuSupport: True
+#    runConfig:
+#      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+#      gpuSupport: True
     conda:
       name: project_environment
       channels:
