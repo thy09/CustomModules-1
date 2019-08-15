@@ -1,5 +1,4 @@
 """
-"""
 Mask R-CNN
 The main Mask R-CNN model implementation.
 
