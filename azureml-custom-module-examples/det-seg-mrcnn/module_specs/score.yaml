@@ -1,5 +1,5 @@
 name: MaskRCNN Score
-id: 
+id: e98cc07f-fee7-4208-9c7b-465bb2f4e772
 category: Machine Learning\Score
 description: object detection and instance segmentation using Mask RCNN
 inputs:
