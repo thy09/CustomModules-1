@@ -60,8 +60,8 @@ class MaskRCNN:
         config.display()
         model_file_name = meta.get('Model file', '')
         print(os.path.join(model_folder, model_file_name))
-        self.model = modellib.MaskRCNN(mode="inference", model_dir=model_folder, config=config)
         with tf.device('/cpu:0'):
+            self.model = modellib.MaskRCNN(mode="inference", model_dir=model_folder, config=config)
             self.model.load_weights(os.path.join(model_folder, model_file_name), by_name=True)
 
     def run(self, test_folder, prediction_folder, meta=None):
