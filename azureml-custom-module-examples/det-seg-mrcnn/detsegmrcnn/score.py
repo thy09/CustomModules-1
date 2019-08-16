@@ -65,9 +65,8 @@ class MaskRCNN:
             self.model = modellib.MaskRCNN(mode="inference", model_dir=model_folder, config=config)
             self.model.load_weights(os.path.join(model_folder, model_file_name), by_name=True)
 
-    def run(self, test_folder, meta=None):
+    def run(self, input_df, meta=None):
         run = Run.get_context()
-        input_df = pd.read_parquet(os.path.join(test_folder, 'data.dataset.parquet'), engine='pyarrow')
         img_list = load_image_folder(input_df)
         out_img_str_list = []
         for i, image in enumerate(img_list):
@@ -92,7 +91,8 @@ class MaskRCNN:
 def test(model_folder, test_folder, prediction_folder, model_filename):
     meta = {'Model file': str(model_filename)}
     maskrcnn = MaskRCNN(model_folder, meta=meta)
-    maskrcnn.run(test_folder=test_folder)
+    input_df = pd.read_parquet(os.path.join(test_folder, 'data.dataset.parquet'), engine='pyarrow')
+    maskrcnn.run(input_df=input_df)
 
     # Dump data_type.json as a work around until SMT deploys
     dct = {
