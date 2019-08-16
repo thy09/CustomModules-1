@@ -92,7 +92,7 @@ class MaskRCNN:
 def test(model_folder, test_folder, prediction_folder, model_filename):
     meta = {'Model file': str(model_filename)}
     maskrcnn = MaskRCNN(model_folder, meta=meta)
-    maskrcnn.run(test_folder=test_folder, prediction_folder=prediction_folder)
+    maskrcnn.run(test_folder=test_folder)
 
     # Dump data_type.json as a work around until SMT deploys
     dct = {
