@@ -12,6 +12,7 @@ import base64
 import pandas as pd
 import pyarrow.parquet as pq
 import tensorflow as tf
+from azureml.core.run import Run
 
 
 class InferenceConfig(Config):
@@ -64,8 +65,8 @@ class MaskRCNN:
             self.model = modellib.MaskRCNN(mode="inference", model_dir=model_folder, config=config)
             self.model.load_weights(os.path.join(model_folder, model_file_name), by_name=True)
 
-    def run(self, test_folder, prediction_folder, meta=None):
-        os.makedirs(prediction_folder, exist_ok=True)
+    def run(self, test_folder, meta=None):
+        run = Run.get_context()
         input_df = pd.read_parquet(os.path.join(test_folder, 'data.dataset.parquet'), engine='pyarrow')
         img_list = load_image_folder(input_df)
         out_img_str_list = []
@@ -75,12 +76,13 @@ class MaskRCNN:
             # Display results
             r = predictions[0]
             pred_filename = 'pred_{}'.format(i)
-            display_instances(image, out_folder=prediction_folder, out_filename=pred_filename, boxes=r['rois'],
+            fig = display_instances(image, boxes=r['rois'],
                               masks=r['masks'], class_ids=r['class_ids'], class_names=class_names,
                               scores=r['scores'],
                               title="Predictions")
-            out_fig_path = os.path.join(prediction_folder, pred_filename + '.jpg')
-            with open(out_fig_path, 'rb') as f:
+            run.log_image("prediction/" + pred_filename, plot=fig)
+            fig.savefig('dump.jpg')
+            with open('dump.jpg', 'rb') as f:
                 out_fig_str = 'data:image/jpg;base64,' + base64.b64encode(f.read()).decode('ascii')
             out_img_str_list.append(out_fig_str)
         df = pd.DataFrame(out_img_str_list, columns=['result'])

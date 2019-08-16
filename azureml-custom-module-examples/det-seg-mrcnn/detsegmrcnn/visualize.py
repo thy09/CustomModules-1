@@ -21,7 +21,7 @@ from matplotlib.patches import Polygon
 import IPython.display
 from .mrcnn import utils
 from PIL import Image
-from azureml.core.run import Run
+# from azureml.core.run import Run
 
 
 ############################################################
@@ -76,7 +76,7 @@ def apply_mask(image, mask, color, alpha=0.5):
     return image
 
 
-def display_instances(image, out_folder, out_filename, boxes, masks, class_ids, class_names,
+def display_instances(image, boxes, masks, class_ids, class_names,
                       scores=None, title="",
                       figsize=(16, 16), ax=None,
                       show_mask=True, show_bbox=True,
@@ -93,8 +93,7 @@ def display_instances(image, out_folder, out_filename, boxes, masks, class_ids, 
     colors: (optional) An array or colors to use with each object
     captions: (optional) A list of strings to use as captions for each object
     """
-    run = Run.get_context()
-    # img_plt = plt.figure(1)
+    # run = Run.get_context()
     # Number of instances
     N = boxes.shape[0]
     if not N:
@@ -162,8 +161,7 @@ def display_instances(image, out_folder, out_filename, boxes, masks, class_ids, 
             ax.add_patch(p)
     ax.imshow(masked_image.astype(np.uint8))
     fig = ax.get_figure()
-    run.log_image("prediction/"+out_filename, plot=fig)
-    fig.savefig(os.path.join(out_folder, '{}.jpg'.format(out_filename)))
+    return fig
 
 
 def display_differences(image,
