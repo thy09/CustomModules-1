@@ -39,7 +39,7 @@ implementation:
       - scikit-image=0.15.0
       - pip:
         - azureml-core==1.0.48
-        - alghost==0.0.70
+        - alghost
         - pyarrow==0.14.0
         - fire==0.1.3
         - keras==2.1.3
