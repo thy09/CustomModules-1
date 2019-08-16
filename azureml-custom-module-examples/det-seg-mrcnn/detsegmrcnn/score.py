@@ -110,6 +110,7 @@ def test(model_folder, test_folder, prediction_folder, model_filename):
         'AuxiliaryFileExtension': None,
         'AuxiliaryContentType': None
     }
+    os.makedirs(prediction_folder, exist_ok=True)
     with open(os.path.join(prediction_folder, 'data_type.json'), 'w') as f:
         json.dump(dct, f)
 
