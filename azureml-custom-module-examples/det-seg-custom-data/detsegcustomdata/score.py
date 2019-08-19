@@ -28,7 +28,7 @@ class MaskRCNNScore:
         model_file_name = meta.get('Model file', '')
         model_file_path = os.path.join(model_folder, model_file_name)
         mapping_file_path = os.path.join(model_folder, "mapping.json")
-        with tf.device('/cpu:0'):
+        with tf.device('/gpu:0'):
             self.model = modellib.MaskRCNN(mode="inference", model_dir=model_folder, config=self.config)
             self.model.load_weights(model_file_path, by_name=True)
         with open(mapping_file_path, 'r') as fin:
