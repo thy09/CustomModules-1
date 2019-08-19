@@ -1,4 +1,4 @@
-name: Balloon Preprocess
+name: VIA Preprocess
 id: f0d18aba-76dc-4690-ac7e-ba099c979a8b
 category: Machine Learning\Preprocess
 description: Preprocess module for custom dataset in object detection and instance segmentation
@@ -7,14 +7,6 @@ inputs:
   type: GenericFolder
   port: True
   description: Input test data
-- name: Output data file name
-  type: Mode
-  default: "train.pkl"
-  description: Preprocessed data in pickle file
-  options:
-    - train.pkl
-    - val.pkl
-    - score.pkl
 outputs:
 - name: Output data folder
   type: GenericFolder
@@ -40,8 +32,7 @@ implementation:
       - pip:
         - keras==2.1.3
         - matplotlib==3.1.1
-        - pycocotools==2.0.0
-        - git+https://github.com/chjinche/Mask_RCNN.git
+        - cloudpickle==1.2.1
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
     command:
     - python
@@ -50,7 +41,5 @@ implementation:
     args:
     - --dataset_folder
     - inputValue: Input data folder
-    - --out_dataset_file
-    - inputValue: Output data file name
     - --out_dataset_folder
     - outputPath: Output data folder

@@ -1,5 +1,5 @@
-name: DetSeg Score
-id: 92f3d3c9-dac1-44a8-b17b-01c4297ff4fe
+name: MaskRCNN Score
+id: e98cc07f-fee7-4208-9c7b-465bb2f4e772
 category: Machine Learning\Score
 description: Score module for custom dataset in object detection and instance segmentation
 inputs:
@@ -11,14 +11,6 @@ inputs:
   type: GenericFolder
   port: True
   description: Input score data folder
-- name: Input score data file
-  type: Mode
-  default: "score.pkl"
-  description: Input score data file
-  options:
-    - train.pkl
-    - val.pkl
-    - score.pkl
 outputs:
 - name: Output evaluation and preditcion
   type: GenericFolder
@@ -36,18 +28,19 @@ implementation:
       dependencies:
       - ipython
       - python=3.6.2
-      - tensorflow-gpu=1.14.0
+      - tensorflow=1.14.0
       - cython=0.29.12
       - numpy=1.16.4
       - py-opencv=3.4.2
       - scikit-image=0.15.0
       - pip:
+        - --extra-index-url=https://test.pypi.org/simple
         - keras==2.1.3
-        - azureml==0.2.7
-        - azureml-core==1.0.43
+        - azureml-core==1.0.48
+        - alghost==0.0.70
+        - pyarrow==0.14.0
+        - fire==0.1.3
         - matplotlib==3.1.1
-        - pycocotools==2.0.0
-        - git+https://github.com/chjinche/Mask_RCNN.git
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
     command:
     - python
@@ -58,7 +51,5 @@ implementation:
     - inputValue: Input model folder
     - --dataset_score_folder
     - inputValue: Input score data folder
-    - --dataset_score_file
-    - inputValue: Input score data file
     - --prediction_folder
     - outputPath: Output evaluation and preditcion

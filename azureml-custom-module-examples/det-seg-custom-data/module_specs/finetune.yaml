@@ -1,7 +1,7 @@
-name: DetSeg Train
+name: MaskRCNN Finetune
 id: 1e827585-d4fb-4245-9409-aaafad94099a
 category: Machine Learning\Train
-description: Train module for custom dataset in object detection and instance segmentation
+description: Fine tune module for custom dataset in object detection and instance segmentation
 inputs:
 - name: Input pretrained model folder
   type: ModelFolder
@@ -18,26 +18,10 @@ inputs:
   type: GenericFolder
   port: True
   description: Input train data folder
-- name: Input train data file
-  type: Mode
-  default: "train.pkl"
-  description: Input train data file
-  options:
-    - train.pkl
-    - val.pkl
-    - score.pkl
 - name: Input val data folder
   type: GenericFolder
   port: True
   description: Input validation data folder
-- name: Input val data file
-  type: Mode
-  default: "val.pkl"
-  description: Input validation data file
-  options:
-    - train.pkl
-    - val.pkl
-    - score.pkl
 - name: GPU count
   type: Int
   default: 2
@@ -83,13 +67,11 @@ implementation:
       - pip:
         - keras==2.1.3
         - matplotlib==3.1.1
-        - pycocotools==2.0.0
-        - git+https://github.com/chjinche/Mask_RCNN.git
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/det-seg-custom-data
     command:
     - python
     - -m
-    - detsegcustomdata.train
+    - detsegcustomdata.finetune
     args:
     - --pretrained_model_folder
     - inputValue: Input pretrained model folder
@@ -97,12 +79,8 @@ implementation:
     - inputValue: Input pretrained model file
     - --dataset_train_folder
     - inputValue: Input train data folder
-    - --dataset_train_file
-    - inputValue: Input train data file
     - --dataset_val_folder
     - inputValue: Input val data folder
-    - --dataset_val_file
-    - inputValue: Input val data file
     - --gpu_cnt
     - inputValue: GPU count
     - --step_per_epoch
