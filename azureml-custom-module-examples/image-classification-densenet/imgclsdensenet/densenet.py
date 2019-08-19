@@ -37,7 +37,8 @@ def _load_state_dict(model, model_url):
 
 def _densenet(arch, model_path, growth_rate, block_config, num_init_features, pretrained,
               **kwargs):
-    model = DenseNet(growth_rate, block_config, num_init_features, **kwargs)
+    # model = DenseNet(growth_rate, block_config, num_init_features, **kwargs)
+    model = DenseNet(growth_rate, block_config, num_init_features)
     if pretrained:
         _load_state_dict(model, os.path.join(model_path, model_urls[arch]))
     return model
@@ -98,7 +99,7 @@ def densenet201(model_path='script/saved_model', pretrained=False, **kwargs):
 class MyDenseNet(nn.Module):
     def __init__(self, model_type='densenet201', model_path='script/saved_model', pretrained=True,
                  memory_efficient=False, classes=20):
-        super(MyDenseNet, self).__init__()
+        super().__init__()
         if model_type == 'densenet201':
             self.model1 = densenet201(model_path=model_path, pretrained=pretrained, memory_efficient=memory_efficient)
         elif model_type == 'densenet169':
