@@ -44,7 +44,7 @@ def train(model, dataset_train_path, dataset_val_path, epochs=30, lr=0.001):
 
 
 def test(pretrained_model_folder, pretrained_model_file, dataset_train_folder, dataset_val_folder, model_folder,
-         gpu_cnt, num_classes, epochs, lr):
+         gpu_cnt, epochs, lr):
     os.makedirs(model_folder, exist_ok=True)
     mapping_file_path = os.path.join(dataset_train_folder, 'mapping.json')
     with open(mapping_file_path, 'r') as fin:
