@@ -7,6 +7,10 @@ inputs:
   type: ModelFolder
   port: True
   description: Input model folder
+- name: Input dataframe folder
+  type: TabularDataFolder
+  port: True
+  description: input score data folder in dataframe
 - name: Input score data folder
   type: GenericFolder
   port: True
@@ -49,6 +53,8 @@ implementation:
     args:
     - --model_folder
     - inputValue: Input model folder
+    - input_df_folder
+    - inputValue: Input dataframe folder
     - --dataset_score_folder
     - inputValue: Input score data folder
     - --prediction_folder
