@@ -1,6 +1,6 @@
 from .utils import logger, load_pretrained_model
-from mrcnn.config import Config
-from mrcnn import model as modellib
+from .mrcnn.config import Config
+from .mrcnn import model as modellib
 from shutil import copyfile
 import os
 import pickle
