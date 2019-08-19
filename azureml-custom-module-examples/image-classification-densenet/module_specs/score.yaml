@@ -72,6 +72,6 @@ implementation:
     - --save_path
     - outputPath: Save path
   invoking:
-    module: script.score
+    module: imgclsdensenet.score
     class: Score
     func: run
