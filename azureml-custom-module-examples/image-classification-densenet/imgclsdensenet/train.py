@@ -236,8 +236,8 @@ def entrance(model_path='script/saved_model', data_path='script/dataset/dog_trai
 
     os.makedirs(save_path, exist_ok=True)
 
-    train(model=model, train_set=train_set,
-          valid_set=valid_set, test_set=test_set, save_path=save_path, epochs=epochs,
+    train(model=model, train_set=train_set, valid_set=valid_set, test_set=test_set,
+          save_path=save_path, num_classes=num_classes, epochs=epochs,
           batch_size=batch_size, random_seed=random_seed,
           model_type=model_type, memory_efficient=memory_efficient, lr=learning_rate)
 
