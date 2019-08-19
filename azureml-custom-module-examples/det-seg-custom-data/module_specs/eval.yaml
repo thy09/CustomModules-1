@@ -1,16 +1,16 @@
-name: MaskRCNN Score
-id: e98cc07f-fee7-4208-9c7b-465bb2f4e772
-category: Machine Learning\Score
+name: MaskRCNN Evaluate
+id: 50abb9f4-5ed9-460c-8c0d-2fc1a0232bf8
+category: Machine Learning\Evaluate
 description: Score module for custom dataset in object detection and instance segmentation
 inputs:
 - name: Input model folder
   type: ModelFolder
   port: True
   description: Input model folder
-- name: Input dataframe folder
-  type: TabularDataFolder
+- name: Input score data folder
+  type: GenericFolder
   port: True
-  description: input score data folder in dataframe
+  description: Input score data folder
 outputs:
 - name: Output evaluation and preditcion
   type: GenericFolder
@@ -49,7 +49,7 @@ implementation:
     args:
     - --model_folder
     - inputValue: Input model folder
-    - input_df_folder
-    - inputValue: Input dataframe folder
+    - --dataset_score_folder
+    - inputValue: Input score data folder
     - --prediction_folder
     - outputPath: Output evaluation and preditcion
