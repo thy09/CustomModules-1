@@ -3,10 +3,10 @@ id: dc6b6cc2-c9f1-460c-86e5-30e44eaf39e8
 category: Machine Learning\Postprocess
 description: Change indices to labels in image classification tasks
 inputs:
-- name: File path
-  type: GenericFolder
+- name: Model path
+  type: ModelFolder
   port: True
-  description: file_path
+  description: model_path
 - name: Data path
   type: TabularDataFolder
   port: True
@@ -38,8 +38,8 @@ implementation:
     - -m
     - imgclsdensenet.postprocess
     args:
-    - --file_path
-    - inputValue: File path
+    - --model_path
+    - inputValue: Model path
     - --data_path
     - inputValue: Data path
     - --save_path

@@ -1,6 +1,7 @@
 from torchvision import datasets, transforms
 from .densenet import MyDenseNet
 from .smt_fake import smt_fake_model
+from shutil import copyfile
 import os
 import time
 import fire
@@ -242,6 +243,7 @@ def entrance(model_path='script/saved_model', data_path='script/dataset/dog_trai
           model_type=model_type, memory_efficient=memory_efficient, lr=learning_rate)
 
     smt_fake_model(save_path)
+    copyfile(os.path.join(data_path, 'index_to_label.json'), os.path.join(model_path, 'index_to_label.json'))
 
     print('This experiment has been completed.')
 

@@ -11,8 +11,8 @@ from .smt_fake import smt_fake_file
 
 
 class Postprocess:
-    def __init__(self, file_path, meta={}):
-        file_name = os.path.join(file_path, 'index_to_label.json')
+    def __init__(self, model_path, meta={}):
+        file_name = os.path.join(model_path, 'index_to_label.json')
 
         self.classes = []
         with open(file_name) as f:
@@ -39,8 +39,8 @@ class Postprocess:
                                     file_name='data.dataset.parquet', data_type=DataTypes.DATASET)
 
 
-def test(file_path='script', data_path='script/outputs2', save_path='script/outputs3'):
-    postprocess = Postprocess(file_path)
+def test(model_path='script', data_path='script/outputs2', save_path='script/outputs3'):
+    postprocess = Postprocess(model_path)
     postprocess.evaluate(data_path=data_path, save_path=save_path)
 
     smt_fake_file(save_path)
