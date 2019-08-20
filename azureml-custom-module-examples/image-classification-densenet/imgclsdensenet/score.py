@@ -78,8 +78,8 @@ class Score:
 
 
 def test(model_path='script/saved_model', data_path='script/outputs', save_path='script/outputs2',
-         model_type='densenet201', memory_efficient=False):
-    meta = {'Model type': model_type, 'Memory efficient': str(memory_efficient)}
+         model_type='densenet201', memory_efficient=False, num_classes=1):
+    meta = {'Model type': model_type, 'Memory efficient': str(memory_efficient), 'Num of classes': str(num_classes)}
     score = Score(model_path, meta)
     score.evaluate(data_path=data_path, save_path=save_path)
 
