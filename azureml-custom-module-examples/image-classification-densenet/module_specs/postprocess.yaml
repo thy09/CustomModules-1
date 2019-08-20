@@ -1,0 +1,50 @@
+name: Index to Label
+id: dc6b6cc2-c9f1-460c-86e5-30e44eaf39e8
+category: Machine Learning\Postprocess
+description: Change indices to labels in image classification tasks
+inputs:
+- name: File path
+  type: GenericFolder
+  port: True
+  description: file_path
+- name: Data path
+  type: TabularDataFolder
+  port: True
+  description: data_path
+outputs:
+- name: Save path
+  type: TabularDataFolder
+  description: save_path
+implementation:
+  container:
+    runConfig:
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.3
+      - pip:
+        - --extra-index-url=https://test.pypi.org/simple
+        - fire==0.1.3
+        - azureml-core==1.0.48
+        - alghost==0.0.70
+        - pandas==0.24.2
+        - pillow==6.0.0
+        - pyarrow==0.14.0
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/image-classification-densenet
+    command:
+    - python
+    - -m
+    - imgclsdensenet.postprocess
+    args:
+    - --file_path
+    - inputValue: File path
+    - --data_path
+    - inputValue: Data path
+    - --save_path
+    - outputPath: Save path
+  invoking:
+    module: imgclsdensenet.postprocess
+    class: Postprocess
+    func: run
