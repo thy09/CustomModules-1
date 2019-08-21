@@ -1,4 +1,6 @@
 import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
+import faulthandler
+import logging
 from PIL import Image
 from io import BytesIO
 from .smt_fake import smt_fake_file
@@ -12,6 +14,10 @@ import os
 import fire
 import torch
 import torch.nn as nn
+
+
+faulthandler.enable()
+logging.info(f"Load pyarrow.parquet explicitly: {pq}")
 
 
 class Score:
