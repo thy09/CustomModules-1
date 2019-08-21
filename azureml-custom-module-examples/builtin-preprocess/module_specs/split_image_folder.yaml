@@ -1,0 +1,45 @@
+name: Split Image Folder
+id: e36a620f-4bcf-4343-8ec2-c32d709f7b40
+category: Machine Learning\Preprocess
+description: Split image folder
+inputs:
+- name: Input image folder path
+  type: GenericFolder
+  port: True
+  description: model_path
+- name: Split threshold
+  type: Float
+  default: 0.9
+  description: split threshold
+outputs:
+- name: Output more image folder path
+  type: GenericFolder
+  description: more image folder path
+- name: Output less image folder path
+  type: GenericFolder
+  description: less image folder path
+implementation:
+  container:
+    runConfig:
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.2
+      - pip:
+        - fire==0.1.3
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/builtin-preprocess
+    command:
+    - python
+    - -m
+    - builtinpreprocess.split_image_folder
+    args:
+    - --src_path
+    - inputValue: Input image folder path
+    - --thre
+    - inputValue: Split threshold
+    - --tgt_more_path
+    - outputPath: Output more image folder path
+    - --tgt_less_path
+    - outputPath: Output less image folder path
