@@ -1,14 +1,11 @@
-
+import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
 from PIL import Image
 from io import BytesIO
-from torchvision import transforms
-from .densenet import MyDenseNet
 from .smt_fake import smt_fake_file
 from .utils import get_transform, load_model
 from azureml.studio.modulehost.handler.port_io_handler import OutputHandler
 from azureml.studio.common.datatypes import DataTypes
 from azureml.studio.common.datatable.data_table import DataTable
-import pyarrow.parquet as pq  # noqa: F401
 import base64
 import pandas as pd
 import os
