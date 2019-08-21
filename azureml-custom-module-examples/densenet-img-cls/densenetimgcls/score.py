@@ -1,4 +1,7 @@
+import pandas as pd
+print("pandas imported")
 import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
+print("pyarrow imported")
 import faulthandler
 import logging
 from PIL import Image
@@ -9,7 +12,6 @@ from azureml.studio.modulehost.handler.port_io_handler import OutputHandler
 from azureml.studio.common.datatypes import DataTypes
 from azureml.studio.common.datatable.data_table import DataTable
 import base64
-import pandas as pd
 import os
 import fire
 import torch
