@@ -100,7 +100,7 @@ def train(model, train_set, valid_set, save_path, epochs, batch_size,
                 counter = 0
             last_epoch_valid_loss = valid_loss
         print("counter", counter)
-        save_checkpoint({
+        early_stop = save_checkpoint({
             "epoch": epoch + 1,
             "state_dict": state_dict,
             "best_error": best_error,
@@ -111,6 +111,8 @@ def train(model, train_set, valid_set, save_path, epochs, batch_size,
             "valid_error": valid_error,
             "counter": counter
              }, is_best, save_path, patience)
+        if early_stop:
+            break
 
 
 def entrance(model_path='pretrained', data_path='', save_path='saved_model',

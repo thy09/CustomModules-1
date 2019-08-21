@@ -3,7 +3,6 @@ from .densenet import MyDenseNet
 import shutil
 import torch
 import os
-import sys
 import time
 
 
@@ -48,7 +47,7 @@ def save_checkpoint(state, is_best, save_path, patience):
         print("early stopped.")
         with open(os.path.join(save_path, 'log.txt'), 'a') as fout:
             fout.write("early stopped.\n")
-        sys.exit()
+    return early_stop
 
 
 def get_transform():
