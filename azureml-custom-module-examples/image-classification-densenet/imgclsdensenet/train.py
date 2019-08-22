@@ -211,7 +211,7 @@ def train(model, train_set, valid_set, test_set, save_path, num_classes, epochs,
 
 
 def entrance(model_path='script/saved_model', data_path='script/dataset/dog_train', save_path='script/saved_model',
-             model_type='densenet201', pretrained=True, memory_efficient=False, num_classes=1, epochs=1, batch_size=4,
+             model_type='densenet201', pretrained=True, memory_efficient=False, num_classes=3, epochs=1, batch_size=4,
              learning_rate=0.001, random_seed=None):
     mean = [0.485, 0.456, 0.406]
     stdv = [0.229, 0.224, 0.225]
