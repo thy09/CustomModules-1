@@ -91,6 +91,14 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
 
         # compute output
         output = model(input)
+        # start debug
+        print("output")
+        print(output)
+        print("target")
+        print(target)
+        print("ouput k1")
+        print(output.data.cpu().topk(1, dim=1))
+        # end debug
         loss = torch.nn.functional.cross_entropy(output, target)
 
         # measure accuracy and record loss
@@ -230,6 +238,18 @@ def entrance(model_path='script/saved_model', data_path='script/dataset/dog_trai
     train_set = torch.utils.data.Subset(train_set, train_indices)
     test_set = torch.utils.data.Subset(test_set, test_indices)
 
+    # start debug
+    train_label_set = set()
+    for i in range(len(train_set)):
+        train_label_set.add(train_set.__getitem__(i)[1])
+    print("train label set")
+    print(train_label_set)
+    test_label_set = set()
+    for i in range(len(test_set)):
+        test_label_set.add(test_set.__getitem__(i)[1])
+    print("test label set")
+    print(test_label_set)
+    # end debug
     valid_set = None
 
     model = MyDenseNet(model_type=model_type, model_path=model_path,
