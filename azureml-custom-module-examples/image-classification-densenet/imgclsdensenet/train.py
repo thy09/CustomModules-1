@@ -249,6 +249,8 @@ def entrance(model_path='script/saved_model', data_path='script/dataset/dog_trai
         test_label_set.add(test_set.__getitem__(i)[1])
     print("test label set")
     print(test_label_set)
+    print("num_classes")
+    print(num_classes)
     # end debug
     valid_set = None
 
