@@ -1,13 +1,9 @@
 import pandas as pd
-print("pandas imported")
 import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
-print("pyarrow imported")
-import faulthandler
-import logging
 from PIL import Image
 from io import BytesIO
 from .smt_fake import smt_fake_file
-from .utils import get_transform, load_model
+from .utils import get_transform, load_model, logger
 from azureml.studio.modulehost.handler.port_io_handler import OutputHandler
 from azureml.studio.common.datatypes import DataTypes
 from azureml.studio.common.datatable.data_table import DataTable
@@ -16,10 +12,7 @@ import os
 import fire
 import torch
 import torch.nn as nn
-
-
-faulthandler.enable()
-logging.info(f"Load pyarrow.parquet explicitly: {pq}")
+import json
 
 
 class Score:
@@ -28,6 +21,8 @@ class Score:
         self.memory_efficient = True if meta['Memory efficient'] == 'True' else False
         self.model = load_model(model_path, model_type=meta['Model type'], memory_efficient=self.memory_efficient,
                                 num_classes=int(meta['Num of classes']))
+        with open(os.path.join(model_path, 'index_to_label.json')) as f:
+            self.classes = json.load(f)
 
     def run(self, input, meta=None):
         my_list = []
@@ -47,9 +42,9 @@ class Score:
                 softmax = nn.Softmax(dim=1)
                 pred_probs = softmax(output).cpu().numpy()[0]
                 index = torch.argmax(output, 1)[0].cpu().item()
-            result = [index, str(pred_probs[index])]
+            result = [self.classes[index], str(pred_probs[index])]
             my_list.append(result)
-        df = pd.DataFrame(my_list, columns=['index', 'probability'])
+        df = pd.DataFrame(my_list, columns=['category', 'probability'])
         return df
 
     def evaluate(self, data_path, save_path):
@@ -66,7 +61,7 @@ def entrance(model_path='script/saved_model', data_path='script/outputs', save_p
     meta = {'Model type': model_type, 'Memory efficient': str(memory_efficient), 'Num of classes': str(num_classes)}
     score = Score(model_path, meta)
     score.evaluate(data_path=data_path, save_path=save_path)
-
+    # workaround for smt
     smt_fake_file(save_path)
 
 

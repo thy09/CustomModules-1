@@ -4,6 +4,14 @@ import shutil
 import torch
 import os
 import time
+import logging
+
+
+logger = logging.getLogger('Downloader')
+logger.setLevel(logging.DEBUG)
+hdl = logging.StreamHandler()
+hdl.setFormatter(logging.Formatter('%(asctime)s %(name)-10s %(levelname)-10s %(message)s'))
+logger.addHandler(hdl)
 
 
 class AverageMeter(object):
@@ -38,13 +46,13 @@ def save_checkpoint(state, is_best, save_path, patience):
     if is_best:
         best_checkpoint_path = os.path.join(save_path, 'best_model.pth')
         message = "Get better top1 accuracy: {:.4f} saving weights to {}\n".format(state["best_accuracy"], best_checkpoint_path)
-        print(message)
+        logger.info(message)
         with open(os.path.join(save_path, 'log.txt'), 'a') as fout:
             fout.write(message)
         shutil.copyfile(checkpoint_path, best_checkpoint_path)
     early_stop = True if state["counter"] >= patience else False
     if early_stop:
-        print("early stopped.")
+        logger.info("early stopped.")
         with open(os.path.join(save_path, 'log.txt'), 'a') as fout:
             fout.write("early stopped.\n")
     return early_stop
@@ -99,7 +107,7 @@ def evaluate(model, loader, print_freq=1, is_test=False):
             batch_size = target.size(0)
             _, pred = output.data.cpu().topk(1, dim=1)
             error.update(torch.ne(pred.squeeze(), target.cpu()).float().sum().item() / batch_size, batch_size)
-            losses.update(loss.item(), batch_size)
+            losses.update(loss.item() / batch_size, batch_size)
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
@@ -112,6 +120,6 @@ def evaluate(model, loader, print_freq=1, is_test=False):
                     'Avg_Loss_Batch/Avg_Loss_Epoch: {:.4f}/{:.4f}'.format(losses.val, losses.avg),
                     'Avg_Error_Batch/Avg_Error_Epoch: {:.4f}/{:.4f}'.format(error.val, error.avg),
                 ])
-                print(res)
+                logger.info(res)
     # Return summary statistics
     return batch_time.avg, losses.avg, error.avg

@@ -99,7 +99,7 @@ def densenet201(model_path='script/saved_model', pretrained=False, **kwargs):
 class MyDenseNet(nn.Module):
     def __init__(self, model_type='densenet201', model_path='script/saved_model', pretrained=True,
                  memory_efficient=False, classes=20):
-        super().__init__()
+        super(MyDenseNet, self).__init__()
         if model_type == 'densenet201':
             self.model1 = densenet201(model_path=model_path, pretrained=pretrained, memory_efficient=memory_efficient)
         elif model_type == 'densenet169':

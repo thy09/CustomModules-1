@@ -1,6 +1,6 @@
 from torchvision import datasets
 from .densenet import MyDenseNet
-from .utils import save_checkpoint, AverageMeter, get_transform, evaluate
+from .utils import save_checkpoint, AverageMeter, get_transform, evaluate, logger
 from .smt_fake import smt_fake_model
 from shutil import copyfile
 import os
@@ -28,7 +28,7 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
         batch_size = target.size(0)
         _, pred = output.data.cpu().topk(1, dim=1)
         error.update(torch.ne(pred.squeeze(), target.cpu()).float().sum().item() / batch_size, batch_size)
-        losses.update(loss.item(), batch_size)
+        losses.update(loss.item() / batch_size, batch_size)
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
@@ -45,7 +45,7 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
                 'Avg_Loss_Batch/Avg_Loss_Epoch: {:.4f}/{:.4f}'.format(losses.val, losses.avg),
                 'Avg_Error_Batch/Avg_Error_Epoch: {:.4f}/{:.4f}'.format(error.val, error.avg),
             ])
-            print(res)
+            logger.info(res)
     # Return summary statistics
     return batch_time.avg, losses.avg, error.avg
 
@@ -99,7 +99,7 @@ def train(model, train_set, valid_set, save_path, epochs, batch_size,
             else:
                 counter = 0
             last_epoch_valid_loss = valid_loss
-        print("counter", counter)
+        logger.info("counter", counter)
         early_stop = save_checkpoint({
             "epoch": epoch + 1,
             "state_dict": state_dict,
@@ -137,7 +137,7 @@ def entrance(model_path='pretrained', data_path='', save_path='saved_model',
     smt_fake_model(save_path)
     # workaround for ds postprocess
     copyfile(os.path.join(data_path, 'index_to_label.json'), os.path.join(save_path, 'index_to_label.json'))
-    print('This experiment has been completed.')
+    logger.info('This experiment has been completed.')
 
 
 if __name__ == '__main__':

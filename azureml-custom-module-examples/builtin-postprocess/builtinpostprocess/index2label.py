@@ -12,7 +12,6 @@ import pandas as pd
 class Postprocess:
     def __init__(self, model_path, meta={}):
         file_name = os.path.join(model_path, 'index_to_label.json')
-        self.classes = []
         with open(file_name) as f:
             self.classes = json.load(f)
 
