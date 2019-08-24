@@ -7,7 +7,7 @@ import time
 import logging
 
 
-logger = logging.getLogger('Downloader')
+logger = logging.getLogger('Training')
 logger.setLevel(logging.DEBUG)
 hdl = logging.StreamHandler()
 hdl.setFormatter(logging.Formatter('%(asctime)s %(name)-10s %(levelname)-10s %(message)s'))

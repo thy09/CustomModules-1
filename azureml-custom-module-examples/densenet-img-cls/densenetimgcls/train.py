@@ -28,7 +28,7 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
         batch_size = target.size(0)
         _, pred = output.data.cpu().topk(1, dim=1)
         error.update(torch.ne(pred.squeeze(), target.cpu()).float().sum().item() / batch_size, batch_size)
-        losses.update(loss.item() / batch_size, batch_size)
+        losses.update(loss.item(), batch_size)
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
@@ -99,7 +99,7 @@ def train(model, train_set, valid_set, save_path, epochs, batch_size,
             else:
                 counter = 0
             last_epoch_valid_loss = valid_loss
-        logger.info("counter", counter)
+        logger.info(counter)
         early_stop = save_checkpoint({
             "epoch": epoch + 1,
             "state_dict": state_dict,

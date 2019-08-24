@@ -34,11 +34,11 @@ inputs:
   description: num of classes
 - name: Epochs
   type: Int
-  default: 10
+  default: 40
   description: epochs
 - name: Batch size
   type: Int
-  default: 4
+  default: 128
   description: batch_size
 - name: Learning rate
   type: Float
@@ -50,7 +50,7 @@ inputs:
   description: random_seed
 - name: Patience
   type: Int
-  default: 5
+  default: 3
   description: patience
 outputs:
 - name: Save path
