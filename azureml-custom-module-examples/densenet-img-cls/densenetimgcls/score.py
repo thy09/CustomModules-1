@@ -1,13 +1,8 @@
 import pandas as pd
-import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
 from PIL import Image
 from io import BytesIO
-from .smt_fake import smt_fake_file
 from .utils import get_transform, load_model, logger
-from azureml.studio.modulehost.handler.port_io_handler import OutputHandler
-from azureml.studio.common.datatypes import DataTypes
-from azureml.studio.common.datatable.data_table import DataTable
-from azureml.studio.common.io.data_frame_directory import load_data_frame_from_directory
+from azureml.studio.common.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
 import base64
 import os
 import fire
@@ -53,11 +48,34 @@ class Score:
         os.makedirs(save_path, exist_ok=True)
         dir_data = load_data_frame_from_directory(data_path)
         input_df = dir_data.data
-        # input_df = pd.read_parquet(os.path.join(data_path, 'data.dataset.parquet'), engine='pyarrow')
         df = self.run(input_df)
-        dt = DataTable(df)
-        OutputHandler.handle_output(data=dt, file_path=save_path,
-                                    file_name='data.dataset.parquet', data_type=DataTypes.DATASET)
+        schema = {
+            'columnAttributes': [
+                {
+                    "name": "category",
+                    "type": "String",
+                    "isFeature": True,
+                    "elementType": {
+                        "typeName": "str",
+                        "isNullable": False
+                    },
+                },
+                {
+                    "name": "probability",
+                    "type": "String",
+                    "isFeature": True,
+                    "elementType": {
+                        "typeName": "str",
+                        "isNullable": False
+                    },
+                },
+            ],
+            "featureChannels": [],
+            "labelColumns": {},
+            "scoreColumns": {},
+        }
+        save_data_frame_to_directory(save_path, data=df, schema=schema)
+        print(f"DataFrame dumped: {df}")
 
 
 def entrance(model_path='script/saved_model', data_path='script/outputs', save_path='script/outputs2',
@@ -65,8 +83,6 @@ def entrance(model_path='script/saved_model', data_path='script/outputs', save_p
     meta = {'Model type': model_type, 'Memory efficient': str(memory_efficient), 'Num of classes': str(num_classes)}
     score = Score(model_path, meta)
     score.infer(data_path=data_path, save_path=save_path)
-    # workaround for smt
-    smt_fake_file(save_path)
 
 
 if __name__ == '__main__':
