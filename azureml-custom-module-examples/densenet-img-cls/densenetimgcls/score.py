@@ -1,4 +1,5 @@
 import pandas as pd
+import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
 from PIL import Image
 from io import BytesIO
 from .utils import get_transform, load_model, logger

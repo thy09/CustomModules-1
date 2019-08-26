@@ -51,6 +51,7 @@ implementation:
         - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
         - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
         - pillow==6.0.0
+        - pyarrow==0.14.0
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/densenet-img-cls
         - alghost-core==0.0.5
     command:
