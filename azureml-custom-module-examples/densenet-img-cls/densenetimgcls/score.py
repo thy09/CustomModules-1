@@ -7,6 +7,7 @@ from .utils import get_transform, load_model, logger
 from azureml.studio.modulehost.handler.port_io_handler import OutputHandler
 from azureml.studio.common.datatypes import DataTypes
 from azureml.studio.common.datatable.data_table import DataTable
+from azureml.studio.common.io.data_frame_directory import load_data_frame_from_directory
 import base64
 import os
 import fire
@@ -48,9 +49,11 @@ class Score:
         df = pd.DataFrame(my_list, columns=['category', 'probability'])
         return df
 
-    def evaluate(self, data_path, save_path):
+    def infer(self, data_path, save_path):
         os.makedirs(save_path, exist_ok=True)
-        input_df = pd.read_parquet(os.path.join(data_path, 'data.dataset.parquet'), engine='pyarrow')
+        dir_data = load_data_frame_from_directory(data_path)
+        input_df = dir_data.data
+        # input_df = pd.read_parquet(os.path.join(data_path, 'data.dataset.parquet'), engine='pyarrow')
         df = self.run(input_df)
         dt = DataTable(df)
         OutputHandler.handle_output(data=dt, file_path=save_path,
@@ -61,7 +64,7 @@ def entrance(model_path='script/saved_model', data_path='script/outputs', save_p
          model_type='densenet201', memory_efficient=False, num_classes=3):
     meta = {'Model type': model_type, 'Memory efficient': str(memory_efficient), 'Num of classes': str(num_classes)}
     score = Score(model_path, meta)
-    score.evaluate(data_path=data_path, save_path=save_path)
+    score.infer(data_path=data_path, save_path=save_path)
     # workaround for smt
     smt_fake_file(save_path)
 

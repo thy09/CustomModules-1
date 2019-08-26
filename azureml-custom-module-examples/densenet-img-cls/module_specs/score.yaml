@@ -45,6 +45,8 @@ implementation:
       - python=3.6.2
       - pip:
         - --extra-index-url=https://test.pypi.org/simple
+        - ruamel.yaml==0.15.89
+        - alghost-core==0.0.5
         - fire==0.1.3
         - azureml-core==1.0.48
         - alghost==0.0.70
