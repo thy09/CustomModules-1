@@ -21,6 +21,7 @@ class Score:
         self.memory_efficient = True if meta['Memory efficient'] == 'True' else False
         self.model = load_model(model_path, model_type=meta['Model type'], memory_efficient=self.memory_efficient,
                                 num_classes=int(meta['Num of classes']))
+        self.model.eval()
         with open(os.path.join(model_path, 'index_to_label.json')) as f:
             self.classes = json.load(f)
 
