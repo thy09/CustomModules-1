@@ -54,7 +54,6 @@ implementation:
         - pillow==6.0.0
         - pyarrow==0.14.0
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/densenet-img-cls
-        - alghost-core==0.0.5
     command:
     - python
     - -m
