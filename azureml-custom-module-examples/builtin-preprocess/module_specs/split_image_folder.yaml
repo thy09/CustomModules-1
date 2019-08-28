@@ -12,12 +12,12 @@ inputs:
   default: 0.9
   description: split threshold
 outputs:
-- name: Output more image folder path
+- name: Output train image folder path
   type: GenericFolder
-  description: more image folder path
-- name: Output less image folder path
+  description: train image folder path
+- name: Output test image folder path
   type: GenericFolder
-  description: less image folder path
+  description: test image folder path
 implementation:
   container:
     runConfig:
@@ -39,7 +39,7 @@ implementation:
     - inputValue: Input image folder path
     - --thre
     - inputValue: Split threshold
-    - --tgt_more_path
-    - outputPath: Output more image folder path
-    - --tgt_less_path
-    - outputPath: Output less image folder path
+    - --tgt_train_path
+    - outputPath: Output train image folder path
+    - --tgt_test_path
+    - outputPath: Output test image folder path

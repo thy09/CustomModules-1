@@ -4,7 +4,7 @@ import random
 import fire
 
 
-def split_image_folder(src_path, tgt_more_path, tgt_less_path, thre):
+def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
     for j, subdir in enumerate(os.listdir(src_path)):
         src_sub_path = os.path.join(src_path, subdir)
         if not os.path.isdir(src_sub_path):
@@ -12,18 +12,18 @@ def split_image_folder(src_path, tgt_more_path, tgt_less_path, thre):
         image_list = os.listdir(src_sub_path)
         n = len(image_list)
         random.shuffle(image_list)
+        tgt_train_pic_dir = os.path.join(tgt_train_path, subdir)
+        tgt_test_pic_dir = os.path.join(tgt_test_path, subdir)
+        os.makedirs(tgt_train_pic_dir, exist_ok=True)
+        os.makedirs(tgt_test_pic_dir, exist_ok=True)
         for i, pic in enumerate(image_list):
             src_pic_path = os.path.join(src_sub_path, pic)
             if not os.path.isfile(src_pic_path):
                 continue
-            tgt_big_pic_dir = os.path.join(tgt_more_path, subdir)
-            tgt_small_pic_dir = os.path.join(tgt_less_path, subdir)
-            os.makedirs(tgt_big_pic_dir, exist_ok=True)
-            os.makedirs(tgt_small_pic_dir, exist_ok=True)
             if i < int(n*thre):
-                copyfile(src_pic_path, os.path.join(tgt_big_pic_dir, pic))
+                copyfile(src_pic_path, os.path.join(tgt_train_pic_dir, pic))
             else:
-                copyfile(src_pic_path, os.path.join(tgt_small_pic_dir, pic))
+                copyfile(src_pic_path, os.path.join(tgt_test_pic_dir, pic))
 
 
 def entrance(src_path='', thre=0.9, tgt_more_path='', tgt_less_path=''):
