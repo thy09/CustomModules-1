@@ -3,7 +3,7 @@ import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
 from PIL import Image
 from io import BytesIO
 from .utils import get_transform, load_model, logger
-from azureml.studio.common.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
+from azureml.studio.common.io.data_frame_utils import load_data_frame_from_directory, save_data_frame_to_directory
 import base64
 import os
 import fire
