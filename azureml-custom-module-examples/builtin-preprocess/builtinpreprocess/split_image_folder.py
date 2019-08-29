@@ -26,11 +26,11 @@ def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
                 copyfile(src_pic_path, os.path.join(tgt_test_pic_dir, pic))
 
 
-def entrance(src_path='', thre=0.9, tgt_more_path='', tgt_less_path=''):
-    split_image_folder(src_path, tgt_more_path, tgt_less_path, thre)
+def entrance(src_path='', thre=0.9, tgt_train_path='', tgt_test_path=''):
+    split_image_folder(src_path, tgt_train_path, tgt_test_path, thre)
     # workaround for postprocess
-    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_more_path, 'index_to_label.json'))
-    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_less_path, 'index_to_label.json'))
+    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_train_path, 'index_to_label.json'))
+    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_test_path, 'index_to_label.json'))
     print('Finished')
 
 
