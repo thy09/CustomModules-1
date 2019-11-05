@@ -1,5 +1,6 @@
 name: Split Image Folder
 id: e36a620f-4bcf-4343-8ec2-c32d709f7b40
+version: 1.0
 category: Machine Learning\Preprocess
 description: Split image folder
 inputs:
