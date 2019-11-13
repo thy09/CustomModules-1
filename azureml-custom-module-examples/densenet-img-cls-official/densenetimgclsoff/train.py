@@ -186,6 +186,7 @@ def entrance(data_path='/mnt/chjinche/data/small/',
         print_dir_hierarchy_to_log(data_path)
     # No RandomHorizontalFlip in validation
     train_set = datasets.ImageFolder(data_path, transform=train_transforms)
+    print(train_set.classes)
     valid_set = datasets.ImageFolder(data_path, transform=test_transforms)
     logger.info("Made dataset")
     class_idx_list = [sample[1] for sample in train_set.samples]
