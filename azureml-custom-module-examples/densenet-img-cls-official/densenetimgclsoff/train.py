@@ -3,7 +3,8 @@
 import pyarrow
 from torchvision import datasets
 from .densenet import DenseNet
-from .utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper
+from .utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper, print_dir_hierarchy_to_log
+from azureml.studio.core.logger import TimeProfile
 # from densenet import DenseNet
 # from utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper
 import time
@@ -156,7 +157,8 @@ def train(model,
                 f'Get better top1 accuracy: {1-best_error:.4f} saving weights to {best_checkpoint_name}'
             )
             dumper = torch_dumper(state_dict, model_config, idx_to_class_dict,
-                                  best_checkpoint_name, config_file_name, id_to_class_file_name)
+                                  best_checkpoint_name, config_file_name,
+                                  id_to_class_file_name)
             save_model_to_directory(save_model_path, dumper)
             # shutil.copyfile(checkpoint_path, best_checkpoint_path)
 
@@ -179,6 +181,9 @@ def entrance(data_path='/mnt/chjinche/data/small/',
              patience=2):
     logger.info("Start training.")
     train_transforms, test_transforms = get_transform()
+    logger.info(f"data path: {data_path}")
+    with TimeProfile(f"Mount/Download dataset to '{data_path}'"):
+        print_dir_hierarchy_to_log(data_path)
     # No RandomHorizontalFlip in validation
     train_set = datasets.ImageFolder(data_path, transform=train_transforms)
     valid_set = datasets.ImageFolder(data_path, transform=test_transforms)

@@ -8,7 +8,9 @@ import time
 import numpy as np
 import json
 from azureml.studio.core.logger import logger
-from azureml.studio.core.utils.fileutils import ensure_folder
+from azureml.studio.core.utils.fileutils import ensure_folder, iter_files
+from azureml.studio.core.logger import module_host_logger as log, indented_logging_block
+from pathlib import Path
 
 
 class AverageMeter(object):
@@ -166,3 +168,10 @@ def get_stratified_split_index(n_samples, class_idx_list, valid_size):
     train_index, valid_index, train_label, valid_label = train_test_split(
         sample_ids, labels, stratify=labels, test_size=valid_size)
     return train_index, valid_index
+
+
+def print_dir_hierarchy_to_log(path):
+    log.debug(f"Content of directory {path}:")
+    with indented_logging_block():
+        for f in iter_files(path):
+            log.debug(Path(f).relative_to(path))
