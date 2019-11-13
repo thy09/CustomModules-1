@@ -6,8 +6,8 @@ import torch
 import os
 import time
 import numpy as np
+import json
 from azureml.studio.core.logger import logger
-from azureml.studio.core.io.model_directory import save_model_to_directory
 from azureml.studio.core.utils.fileutils import ensure_folder
 
 
@@ -32,13 +32,18 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-def load_model(model_path, model_type, memory_efficient, num_classes):
-    model = DenseNet(model_type=model_type,
+def torch_loader(load_from_dir, model_spec):
+    """Load the pickle model by reading the file indicated by file_name in model_spec."""
+    model_file_name = model_spec['model_file_name']
+    config_file_name = model_spec['config_file_name']
+    model_config = json.load(
+        open(os.path.join(load_from_dir, config_file_name)))
+    model = DenseNet(model_type=model_config['model_type'],
                      pretrained=False,
-                     memory_efficient=memory_efficient,
-                     classes=num_classes)
+                     memory_efficient=model_config['memory_efficient'],
+                     num_classes=model_config['num_classes'])
     model.load_state_dict(
-        torch.load(os.path.join(model_path, 'best_model.pth'),
+        torch.load(os.path.join(load_from_dir, model_file_name),
                    map_location='cpu'))
     if torch.cuda.is_available():
         model = model.cuda()
@@ -47,50 +52,41 @@ def load_model(model_path, model_type, memory_efficient, num_classes):
     return model
 
 
-def torch_loader(load_from_dir, model_spec):
-    """Load the pickle model by reading the file indicated by file_name in model_spec."""
-    file_name = model_spec['file_name']
-    with open(os.path.join(load_from_dir, file_name), 'rb') as fin:
-        return pickle.load(fin)
-
-
-def torch_dumper(state_dict, file_name=None):
+def torch_dumper(state_dict,
+                 model_config,
+                 idx_to_class_dict,
+                 model_file_name=None,
+                 config_file_name=None,
+                 id_to_class_file_name=None):
     """Return a dumper to save torch state dict."""
-    if not file_name:
-        file_name = '_data.pth'
+    if not model_file_name:
+        model_file_name = '_model.pth'
+
+    if not config_file_name:
+        config_file_name = '_config.json'
+
+    if not id_to_class_file_name:
+        id_to_class_file_name = '_id_to_class.json'   
 
     def model_dumper(save_to):
-        full_path = os.path.join(save_to, file_name)
-        ensure_folder(os.path.dirname(os.path.abspath(full_path)))
-        torch.save(state_dict, full_path)
-        model_spec = {'model_type': 'torch_state_dict', 'file_name': file_name}
+        model_full_path = os.path.join(save_to, model_file_name)
+        config_full_path = os.path.join(save_to, config_file_name)
+        id_to_class_full_path = os.path.join(save_to, id_to_class_file_name)
+        ensure_folder(os.path.dirname(os.path.abspath(model_full_path)))
+        ensure_folder(os.path.dirname(os.path.abspath(config_full_path)))
+        ensure_folder(os.path.dirname(os.path.abspath(id_to_class_full_path)))
+        torch.save(state_dict, model_full_path)
+        json.dump(model_config, open(config_full_path, "w"))
+        json.dump(idx_to_class_dict, open(id_to_class_full_path, "w"))
+        model_spec = {
+            'model_type': 'torch_state_dict',
+            'model_file_name': model_file_name,
+            'config_file_name': config_file_name,
+            'id_to_class_file_name': id_to_class_file_name,
+        }
         return model_spec
+
     return model_dumper
-
-
-def save_checkpoint(state, is_best, save_model_path, patience):
-    # todo: save checkpoint files, but removed now to increase web service deployment efficiency
-    # checkpoint_path = os.path.join(save_model_path, 'model_epoch_{}.pth'.format(state["epoch"]))
-    # torch.save(state["state_dict"], checkpoint_path)
-    logger.info(','.join([
-            f'Epoch {state["epoch"]:d}',
-            f'train_loss {state["train_loss"]:.6f}',
-            f'train_error {state["train_error"]:.6f}',
-            f'valid_loss {state["valid_loss"]:.5f}',
-            f'valid_error {state["valid_error"]:.5f}\n'
-        ]))
-    best_checkpoint_name = 'best_model.pth'
-    if is_best:
-        dumper = torch_dumper(state["state_dict"], best_checkpoint_name)
-        save_model_to_directory(save_model_path, dumper)
-        logger.info(f'Get better top1 accuracy: {state["best_accuracy"]:.4f} saving weights to {best_checkpoint_name}')
-        # shutil.copyfile(checkpoint_path, best_checkpoint_path)
-
-    early_stop = True if state["counter"] >= patience else False
-    if early_stop:
-        logger.info("early stopped.")
-
-    return early_stop
 
 
 def get_transform():

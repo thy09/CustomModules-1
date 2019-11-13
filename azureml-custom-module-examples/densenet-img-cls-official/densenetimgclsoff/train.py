@@ -3,15 +3,13 @@
 import pyarrow
 from torchvision import datasets
 from .densenet import DenseNet
-from .utils import save_checkpoint, AverageMeter, get_transform, evaluate, logger, get_stratified_split_index
+from .utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper
 # from densenet import DenseNet
-# from utils import save_checkpoint, AverageMeter, get_transform, evaluate, logger, get_stratified_split_index
-import os
+# from utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper
 import time
 import fire
 import torch
-import pandas as pd
-from azureml.studio.core.io.data_frame_directory import save_data_frame_to_directory
+from azureml.studio.core.io.model_directory import save_model_to_directory
 
 
 def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
@@ -59,6 +57,8 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
 
 
 def train(model,
+          model_config,
+          idx_to_class_dict,
           train_set,
           valid_set,
           save_model_path,
@@ -69,6 +69,7 @@ def train(model,
           momentum=0.9,
           random_seed=None,
           patience=10):
+    logger.info('torch setting')
     # torch cuda random seed setting
     if random_seed is not None:
         if torch.cuda.is_available():
@@ -78,6 +79,7 @@ def train(model,
                 torch.cuda.manual_seed(random_seed)
         else:
             torch.manual_seed(random_seed)
+    logger.info("Data start loading")
     # DataLoader
     train_loader = torch.utils.data.DataLoader(
         train_set,
@@ -93,20 +95,25 @@ def train(model,
         num_workers=0)
     if torch.cuda.is_available():
         model = model.cuda()
+
     if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model).cuda()
+
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=lr,
                                 momentum=momentum,
                                 nesterov=True,
                                 weight_decay=wd)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, milestones=[0.5 * epochs, 0.75 * epochs], gamma=0.1)
-    logger.info('Start training')
+    # scheduler = torch.optim.lr_scheduler.MultiStepLR(
+    #     optimizer, milestones=[0.5 * epochs, 0.75 * epochs], gamma=0.1)
+    logger.info('Start training epochs')
     best_error = 1
     counter = 0
+    best_checkpoint_name = 'best_model.pth'
+    config_file_name = 'model_config.json'
+    id_to_class_file_name = 'id_to_class.json'
     for epoch in range(epochs):
-        scheduler.step()
+        # scheduler.step()
         _, train_loss, train_error = train_epoch(model=model,
                                                  loader=train_loader,
                                                  optimizer=optimizer,
@@ -120,6 +127,7 @@ def train(model,
             best_error = valid_error
         else:
             is_best = False
+
         state_dict = model.module.state_dict(
         ) if torch.cuda.device_count() > 1 else model.state_dict()
         # early stop
@@ -131,20 +139,30 @@ def train(model,
             else:
                 counter = 0
             last_epoch_valid_loss = valid_loss
-        logger.info(f'valid loss did not decrease consecutively for {counter} epoch')
-        early_stop = save_checkpoint(
-            {
-                "epoch": epoch + 1,
-                "state_dict": state_dict,
-                "best_error": best_error,
-                "best_accuracy": 1 - best_error,
-                "train_loss": train_loss,
-                "train_error": train_error,
-                "valid_loss": valid_loss,
-                "valid_error": valid_error,
-                "counter": counter
-            }, is_best, save_model_path, patience)
+
+        logger.info(
+            f'valid loss did not decrease consecutively for {counter} epoch')
+        # todo: save checkpoint files, but removed now to increase web service deployment efficiency
+        # checkpoint_path = os.path.join(save_model_path, 'model_epoch_{}.pth'.format(state["epoch"]))
+        # torch.save(state["state_dict"], checkpoint_path)
+        logger.info(','.join([
+            f'Epoch {epoch + 1:d}', f'train_loss {train_loss:.6f}',
+            f'train_error {train_error:.6f}', f'valid_loss {valid_loss:.5f}',
+            f'valid_error {valid_error:.5f}'
+        ]))
+
+        if is_best:
+            logger.info(
+                f'Get better top1 accuracy: {1-best_error:.4f} saving weights to {best_checkpoint_name}'
+            )
+            dumper = torch_dumper(state_dict, model_config, idx_to_class_dict,
+                                  best_checkpoint_name, config_file_name, id_to_class_file_name)
+            save_model_to_directory(save_model_path, dumper)
+            # shutil.copyfile(checkpoint_path, best_checkpoint_path)
+
+        early_stop = True if counter >= patience else False
         if early_stop:
+            logger.info("early stopped.")
             break
 
 
@@ -159,23 +177,37 @@ def entrance(data_path='/mnt/chjinche/data/small/',
              learning_rate=0.001,
              random_seed=231,
              patience=2):
+    logger.info("Start training.")
     train_transforms, test_transforms = get_transform()
     # No RandomHorizontalFlip in validation
     train_set = datasets.ImageFolder(data_path, transform=train_transforms)
     valid_set = datasets.ImageFolder(data_path, transform=test_transforms)
-    classes_df = pd.DataFrame({'classes': train_set.classes})
-    save_data_frame_to_directory(save_classes_path, data=classes_df)
+    logger.info("Made dataset")
     class_idx_list = [sample[1] for sample in train_set.samples]
     train_index, valid_index = get_stratified_split_index(
-        n_samples=len(train_set), class_idx_list=class_idx_list, valid_size=0.1)
+        n_samples=len(train_set),
+        class_idx_list=class_idx_list,
+        valid_size=0.1)
     train_set = torch.utils.data.Subset(train_set, train_index)
     valid_set = torch.utils.data.Subset(valid_set, valid_index)
+    logger.info('Got subset')
+    classes = train_set.dataset.classes
+    num_classes = len(classes)
+    idx_to_class_dict = {i: classes[i] for i in range(num_classes)}
+    logger.info("Constructed model")
     model = DenseNet(model_type=model_type,
                      pretrained=pretrained,
                      memory_efficient=memory_efficient,
-                     classes=classes_df.shape[0])
-    os.makedirs(save_model_path, exist_ok=True)
+                     num_classes=num_classes)
+    model_config = {
+        'model_type': model_type,
+        'pretrained': pretrained,
+        'memory_efficient': memory_efficient,
+        'num_classes': num_classes
+    }
     train(model=model,
+          model_config=model_config,
+          idx_to_class_dict=idx_to_class_dict,
           train_set=train_set,
           valid_set=valid_set,
           save_model_path=save_model_path,

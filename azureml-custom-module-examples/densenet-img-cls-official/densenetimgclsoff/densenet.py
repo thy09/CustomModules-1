@@ -9,7 +9,8 @@ class DenseNet(nn.Module):
                  model_type='densenet201',
                  pretrained=True,
                  memory_efficient=False,
-                 classes=20):
+                 num_classes=20):
+        logger.info('init DenseNet.')
         super(DenseNet, self).__init__()
         if not pretrained:
             model_type = "densenet201"
@@ -18,9 +19,11 @@ class DenseNet(nn.Module):
             # todo: catch exception and throw AttributeError
             logger.info(f"Error: No such pretrained model {model_type}")
             sys.exit()
+        logger.info(f"model_type {model_type}, pretrained {pretrained}")
         self.model1 = densenet_func(pretrained=pretrained)
         # Pretrained model is trained based on 1000-class ImageNet dataset
-        self.model2 = nn.Linear(1000, classes)
+        self.model2 = nn.Linear(1000, num_classes)
+        logger.info(f"model init finished")
 
     def forward(self, input):
         output = self.model1(input)
