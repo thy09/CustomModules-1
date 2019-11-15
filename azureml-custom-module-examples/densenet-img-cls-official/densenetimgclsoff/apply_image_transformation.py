@@ -3,7 +3,8 @@ import fire
 from pathlib import Path
 from torchvision import transforms
 # from .utils import get_transform, load_model, logger
-from .utils import logger
+from azureml.studio.core.logger import TimeProfile
+from .utils import logger, print_dir_hierarchy_to_log
 from azureml.studio.core.io.image_directory import ImageDirectory
 
 # mean and stdv of imagenet dataset.
@@ -65,6 +66,9 @@ class ApplyImageTransform:
 def entrance(input_transform_path='/mnt/chjinche/transform/train/',
              input_image_path='/mnt/chjinche/data/small/',
              output_path='/mnt/chjinche/data/output_transformed/'):
+    with TimeProfile(f"Mount/Download dataset to '{input_image_path}'"):
+        print_dir_hierarchy_to_log(input_image_path)
+
     task = ApplyImageTransform(input_transform_path)
     task.apply_image_transformation(input_image_path, output_path)
 
