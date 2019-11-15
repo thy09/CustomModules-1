@@ -38,8 +38,11 @@ def torch_loader(load_from_dir, model_spec):
     """Load the pickle model by reading the file indicated by file_name in model_spec."""
     model_file_name = model_spec['model_file_name']
     config_file_name = model_spec['config_file_name']
+    id_to_class_file_name = model_spec['id_to_class_file_name']
     model_config = json.load(
         open(os.path.join(load_from_dir, config_file_name)))
+    id_to_class_dict = json.load(
+        open(os.path.join(load_from_dir, id_to_class_file_name)))
     model = DenseNet(model_type=model_config['model_type'],
                      pretrained=False,
                      memory_efficient=model_config['memory_efficient'],
@@ -51,7 +54,7 @@ def torch_loader(load_from_dir, model_spec):
         model = model.cuda()
         if torch.cuda.device_count() > 1:
             model = torch.nn.DataParallel(model).cuda()
-    return model
+    return model, id_to_class_dict
 
 
 def torch_dumper(state_dict,
@@ -68,7 +71,7 @@ def torch_dumper(state_dict,
         config_file_name = '_config.json'
 
     if not id_to_class_file_name:
-        id_to_class_file_name = '_id_to_class.json'   
+        id_to_class_file_name = '_id_to_class.json'
 
     def model_dumper(save_to):
         model_full_path = os.path.join(save_to, model_file_name)
@@ -104,7 +107,7 @@ def get_transform():
         transforms.CenterCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=stdv),
+        transforms.Normalize(mean=mean, std=stdv, inplace=True),
     ])
     test_transforms = transforms.Compose([
         transforms.Resize(256),

@@ -1,12 +1,16 @@
 # Explicitly load pyarrow.parquet in advance since pyarrow depends on New C++ API on Linux, otherwise segmentation fault
 # would occur.
 import pyarrow
-from torchvision import datasets
+from torchvision import datasets, transforms
 from .densenet import DenseNet
-from .utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper, print_dir_hierarchy_to_log
+from .utils import (AverageMeter, get_transform, evaluate, logger,
+                    get_stratified_split_index, torch_dumper,
+                    print_dir_hierarchy_to_log)
 from azureml.studio.core.logger import TimeProfile
 # from densenet import DenseNet
-# from utils import AverageMeter, get_transform, evaluate, logger, get_stratified_split_index, torch_dumper
+# from utils import (AverageMeter, get_transform, evaluate, logger,
+#                     get_stratified_split_index, torch_dumper,
+#                     print_dir_hierarchy_to_log)
 import time
 import fire
 import torch
@@ -168,9 +172,9 @@ def train(model,
             break
 
 
-def entrance(data_path='/mnt/chjinche/data/small/',
+def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
+             valid_data_path='/mnt/chjinche/data/output_transformed/',
              save_model_path='/mnt/chjinche/projects/saved_model',
-             save_classes_path='/mnt/chjinche/projects/saved_classes',
              model_type='densenet201',
              pretrained=True,
              memory_efficient=False,
@@ -180,27 +184,22 @@ def entrance(data_path='/mnt/chjinche/data/small/',
              random_seed=231,
              patience=2):
     logger.info("Start training.")
-    train_transforms, test_transforms = get_transform()
-    logger.info(f"data path: {data_path}")
-    with TimeProfile(f"Mount/Download dataset to '{data_path}'"):
-        print_dir_hierarchy_to_log(data_path)
+    to_tensor_transform = transforms.Compose([transforms.ToTensor()])
+    # logger.info(f"data path: {train_data_path}")
+    with TimeProfile(f"Mount/Download dataset to '{train_data_path}'"):
+        print_dir_hierarchy_to_log(train_data_path)
+    with TimeProfile(f"Mount/Download dataset to '{valid_data_path}'"):
+        print_dir_hierarchy_to_log(valid_data_path)
     # No RandomHorizontalFlip in validation
-    train_set = datasets.ImageFolder(data_path, transform=train_transforms)
+    train_set = datasets.ImageFolder(train_data_path, transform=to_tensor_transform)
     print(train_set.classes)
-    valid_set = datasets.ImageFolder(data_path, transform=test_transforms)
+    valid_set = datasets.ImageFolder(valid_data_path, transform=to_tensor_transform)
+    # assert the same classes between train_set and valid_set
     logger.info("Made dataset")
-    class_idx_list = [sample[1] for sample in train_set.samples]
-    train_index, valid_index = get_stratified_split_index(
-        n_samples=len(train_set),
-        class_idx_list=class_idx_list,
-        valid_size=0.1)
-    train_set = torch.utils.data.Subset(train_set, train_index)
-    valid_set = torch.utils.data.Subset(valid_set, valid_index)
-    logger.info('Got subset')
-    classes = train_set.dataset.classes
+    classes = train_set.classes
     num_classes = len(classes)
     idx_to_class_dict = {i: classes[i] for i in range(num_classes)}
-    logger.info("Constructed model")
+    logger.info("Start constructing model")
     model = DenseNet(model_type=model_type,
                      pretrained=pretrained,
                      memory_efficient=memory_efficient,
