@@ -1,11 +1,11 @@
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 from torchvision import transforms
 from .densenet import DenseNet
 # from densenet import DenseNet
 import torch
 import os
 import time
-import numpy as np
+# import numpy as np
 import json
 from azureml.studio.core.logger import logger
 from azureml.studio.core.utils.fileutils import ensure_folder, iter_files
@@ -165,12 +165,12 @@ def evaluate(model, loader, print_freq=1, is_test=False):
     return batch_time.avg, losses.avg, error.avg, (target_list, pred_top1_list)
 
 
-def get_stratified_split_index(n_samples, class_idx_list, valid_size):
-    sample_ids = np.array(list(range(n_samples)))
-    labels = np.array(class_idx_list)
-    train_index, valid_index, train_label, valid_label = train_test_split(
-        sample_ids, labels, stratify=labels, test_size=valid_size)
-    return train_index, valid_index
+# def get_stratified_split_index(n_samples, class_idx_list, valid_size):
+#     sample_ids = np.array(list(range(n_samples)))
+#     labels = np.array(class_idx_list)
+#     train_index, valid_index, train_label, valid_label = train_test_split(
+#         sample_ids, labels, stratify=labels, test_size=valid_size)
+#     return train_index, valid_index
 
 
 def print_dir_hierarchy_to_log(path):
