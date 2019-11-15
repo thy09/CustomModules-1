@@ -1,5 +1,6 @@
 import json
 import fire
+import os
 from pathlib import Path
 from torchvision import transforms
 # from .utils import get_transform, load_model, logger
@@ -20,8 +21,10 @@ class ApplyImageTransform:
     def __init__(self, input_transform_path):
         self.transform = self.get_transform(input_transform_path)
         self.unloader = transforms.ToPILImage()
+        logger.info("transformation init finished.")
 
     def get_transform(self, input_transform_path):
+        logger.info("Reading input transform")
         with open(Path(input_transform_path) / 'transform.json', 'r') as f:
             transform = json.load(f)
 
@@ -45,10 +48,11 @@ class ApplyImageTransform:
                 transforms.ToTensor(),
                 transforms.Normalize(mean=MEAN, std=STDV),
             ])
+        logger.info(f'Get transform: {transform}')
         return transform
 
     def apply(self, loaded_dir):
-        print(self.transform)
+        logger.info(f'Applying transform:')
         transformed_dir = loaded_dir.apply_to_images(
             transform=lambda image: self.unloader(
                 self.transform(image).squeeze(0)))
@@ -56,8 +60,9 @@ class ApplyImageTransform:
         return transformed_dir
 
     def apply_image_transformation(self, input_image_path, output_path):
-        Path(output_path).mkdir(exist_ok=True)
+        os.makedirs(output_path, exist_ok=True)
         loaded_dir = ImageDirectory.load(input_image_path)
+        logger.info("Image dir loaded.")
         transformed_dir = self.apply(loaded_dir)
         transformed_dir.dump(output_path)
         logger.info("Transformed dir dumped")

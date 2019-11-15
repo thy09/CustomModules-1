@@ -14,14 +14,6 @@ from azureml.studio.core.io.data_frame_directory import save_data_frame_to_direc
 from azureml.studio.core.io.image_directory import ImageDirectory
 
 
-def decode_image_str(input_str):
-    if input_str.startswith('data:'):
-        start_index = input_str.find('base64,') + 7
-        input_str = input_str[start_index:]
-    img = Image.open(BytesIO(base64.b64decode(input_str)))
-    return img
-
-
 class Score:
     def __init__(self, model_path, meta={}):
         _, self.inference_transforms = get_transform()
@@ -47,12 +39,10 @@ class Score:
                     self.id_to_class_dict[str(index)], pred_probs[index],
                     identifier
                 ]
-                # print(result)
                 my_list.append(result)
             except Exception:
-                print(f'Exception {identifier}')
+                logger.info(f'Exception {identifier}')
                 pass
-        # print(my_list)
         df = pd.DataFrame(my_list,
                           columns=['category', 'probability', 'identifier'])
         return df
@@ -60,6 +50,7 @@ class Score:
     def infer(self, data_path, save_path):
         os.makedirs(save_path, exist_ok=True)
         loader_dir = ImageDirectory.load(data_path)
+        logger.info(f'Predicting:')
         pred_df = self.run(loader_dir)
         save_data_frame_to_directory(save_path, data=pred_df)
         logger.info("DataFrame dumped")
@@ -69,6 +60,7 @@ def entrance(model_path='/mnt/chjinche/projects/saved_model',
              data_path='/mnt/chjinche/data/small/',
              save_path='/mnt/chjinche/data/scored'):
     score = Score(model_path)
+    logger.info("model init finished.")
     score.infer(data_path=data_path, save_path=save_path)
 
 
