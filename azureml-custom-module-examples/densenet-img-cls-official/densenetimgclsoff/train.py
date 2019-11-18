@@ -3,8 +3,7 @@
 import pyarrow
 from torchvision import datasets, transforms
 from .densenet import DenseNet
-from .utils import (AverageMeter, get_transform, evaluate, logger,
-                    get_stratified_split_index, torch_dumper,
+from .utils import (AverageMeter, evaluate, logger, torch_dumper,
                     print_dir_hierarchy_to_log)
 from azureml.studio.core.logger import TimeProfile
 # from densenet import DenseNet
@@ -191,9 +190,11 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
     with TimeProfile(f"Mount/Download dataset to '{valid_data_path}'"):
         print_dir_hierarchy_to_log(valid_data_path)
     # No RandomHorizontalFlip in validation
-    train_set = datasets.ImageFolder(train_data_path, transform=to_tensor_transform)
+    train_set = datasets.ImageFolder(train_data_path,
+                                     transform=to_tensor_transform)
     print(train_set.classes)
-    valid_set = datasets.ImageFolder(valid_data_path, transform=to_tensor_transform)
+    valid_set = datasets.ImageFolder(valid_data_path,
+                                     transform=to_tensor_transform)
     # assert the same classes between train_set and valid_set
     logger.info("Made dataset")
     classes = train_set.classes
