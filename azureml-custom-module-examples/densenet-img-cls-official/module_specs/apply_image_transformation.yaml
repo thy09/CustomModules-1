@@ -1,0 +1,49 @@
+name: Apply Image Transformation
+id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
+version: 0.0.1.2
+category: Machine Learning\Preprocess
+description: Transform input image with input transform
+inputs:
+- name: Input Image Transformation
+  type: TransformationDirectory
+  port: True
+  description: Input data frame
+- name: Input Image Directory
+  type: AnyDirectory
+  port: True
+  description: Input image directory
+outputs:
+- name: Output Image Directory
+  type: AnyDirectory
+  description: Output image directory
+implementation:
+  container:
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.8
+      - pip:
+        - azureml-defaults
+        - azureml-designer-core==0.0.25
+        - torch==1.3
+        - torchvision==0.4.1
+        - fire==0.1.3
+        - scipy==1.2.1
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/densenet-img-cls-official
+    command:
+    - python
+    - -m
+    - densenetimgclsoff.apply_image_transformation
+    args:
+    - --input-transform-path
+    - inputValue: Input Image Transformation
+    - --input-image-path
+    - inputValue: Input Image Directory
+    - --output-path
+    - outputPath: Output Image Directory
+  invoking:
+    module: densenetimgclsoff.apply_image_transformation
+    class: ApplyImageTransform
+    func: apply
