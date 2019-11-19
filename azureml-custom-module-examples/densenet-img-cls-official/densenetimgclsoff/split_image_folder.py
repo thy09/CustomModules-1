@@ -2,6 +2,8 @@ from shutil import copyfile
 import os
 import random
 import fire
+from .utils import print_dir_hierarchy_to_log
+from azureml.studio.core.logger import TimeProfile
 
 
 def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
@@ -32,6 +34,9 @@ def entrance(src_path='/mnt/chjinche/data/output_transformed/',
              tgt_train_path='/mnt/chjinche/data/output_transformed_train/',
              tgt_test_path='/mnt/chjinche/data/output_transformed_test/'):
     print('Start!')
+    with TimeProfile(f"Mount/Download dataset to '{src_path}'"):
+        print_dir_hierarchy_to_log(src_path)
+
     split_image_folder(src_path, tgt_train_path, tgt_test_path, thre)
     # Hard code. Need to fix
     meta_file_name = '_meta.yaml'
