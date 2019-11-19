@@ -1,6 +1,6 @@
 name: Image Transformation
 id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
-version: 0.0.1.1
+version: 0.0.1.2
 category: Machine Learning\Preprocess
 description: Preprocess training data and generate transform
 inputs:
@@ -43,7 +43,7 @@ implementation:
     command:
     - python
     - -m
-    - densenetimgclsoff.image_transform
+    - densenetimgclsoff.init_image_transform
     args:
     - --resize-size
     - inputValue: Resize Size

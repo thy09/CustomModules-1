@@ -1,23 +1,23 @@
 name: Split Image Folder
 id: e36a620f-4bcf-4343-8ec2-c32d709f7b40
-version: 1.0.0
+version: 0.0.1.0
 category: Machine Learning\Preprocess
 description: Split image folder
 inputs:
 - name: Input image folder path
-  type: GenericFolder
+  type: AnyDirectory
   port: True
-  description: model_path
+  description: input image folder path
 - name: Split threshold
   type: Float
   default: 0.9
   description: split threshold
 outputs:
 - name: Output train image folder path
-  type: GenericFolder
+  type: AnyDirectory
   description: train image folder path
 - name: Output test image folder path
-  type: GenericFolder
+  type: AnyDirectory
   description: test image folder path
 implementation:
   container:

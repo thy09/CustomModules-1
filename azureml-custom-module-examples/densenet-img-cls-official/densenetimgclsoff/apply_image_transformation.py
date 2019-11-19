@@ -71,8 +71,8 @@ class ApplyImageTransform:
 def entrance(input_transform_path='/mnt/chjinche/transform/train/',
              input_image_path='/mnt/chjinche/data/small/',
              output_path='/mnt/chjinche/data/output_transformed/'):
-    with TimeProfile(f"Mount/Download dataset to '{input_image_path}'"):
-        print_dir_hierarchy_to_log(input_image_path)
+    # with TimeProfile(f"Mount/Download dataset to '{input_image_path}'"):
+    #     print_dir_hierarchy_to_log(input_image_path)
 
     task = ApplyImageTransform(input_transform_path)
     task.apply_image_transformation(input_image_path, output_path)

@@ -6,6 +6,7 @@ import fire
 
 def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
     for j, subdir in enumerate(os.listdir(src_path)):
+        print(f'Split {subdir}')
         src_sub_path = os.path.join(src_path, subdir)
         if not os.path.isdir(src_sub_path):
             continue
@@ -20,17 +21,23 @@ def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
             src_pic_path = os.path.join(src_sub_path, pic)
             if not os.path.isfile(src_pic_path):
                 continue
-            if i < int(n*thre):
+            if i < int(n * thre):
                 copyfile(src_pic_path, os.path.join(tgt_train_pic_dir, pic))
             else:
                 copyfile(src_pic_path, os.path.join(tgt_test_pic_dir, pic))
 
 
-def entrance(src_path='', thre=0.9, tgt_train_path='', tgt_test_path=''):
+def entrance(src_path='/mnt/chjinche/data/output_transformed/',
+             thre=0.9,
+             tgt_train_path='/mnt/chjinche/data/output_transformed_train/',
+             tgt_test_path='/mnt/chjinche/data/output_transformed_test/'):
+    print('Start!')
     split_image_folder(src_path, tgt_train_path, tgt_test_path, thre)
-    # workaround for postprocess
-    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_train_path, 'index_to_label.json'))
-    copyfile(os.path.join(src_path, 'index_to_label.json'), os.path.join(tgt_test_path, 'index_to_label.json'))
+    # Hard code. Need to fix
+    meta_file_name = '_meta.yaml'
+    # workaround to add _meta.yaml. Need to fix
+    copyfile(os.path.join(src_path, meta_file_name), os.path.join(tgt_train_path, meta_file_name))
+    copyfile(os.path.join(src_path, meta_file_name), os.path.join(tgt_test_path, meta_file_name))
     print('Finished')
 
 

@@ -1,7 +1,8 @@
 import pandas as pd
-import pyarrow.parquet as pq  # noqa: F401 workaround for pyarrow loaded
-from .utils import get_transform, logger, torch_loader
-# from utils import get_transform, logger, torch_loader
+from .utils import (logger, torch_loader, ScoreColumnConstants,
+                    _IDENTIFIER_NAME, _LABEL_NAME, generate_score_column_meta)
+# from utils import (logger, torch_loader, ScoreColumnConstants,
+#                     _IDENTIFIER_NAME, _LABEL_NAME, generate_score_column_meta)
 import os
 import fire
 import torch
@@ -10,9 +11,7 @@ from torchvision import transforms
 from azureml.studio.core.io.model_directory import load_model_from_directory
 from azureml.studio.core.io.data_frame_directory import save_data_frame_to_directory
 from azureml.studio.core.io.image_directory import ImageDirectory
-from azureml.studio.modules.ml.common.ml_utils import generate_score_column_meta, TaskType
-from azureml.studio.modules.ml.common.constants import ScoreColumnConstants
-from azureml.studio.common.datatable.data_table import DataTable
+from azureml.studio.core.data_frame_schema import DataFrameSchema
 
 
 class Score:
@@ -23,45 +22,59 @@ class Score:
         self.model.eval()
 
     def run(self, loader_dir, meta=None):
-        my_list = []
+        result_list = []
         for img, label, identifier in loader_dir.iter_images():
-            # print(f'label: {label}')
+            # Convert PIL image to tensor
             input_tensor = self.to_tensor_transform(img)
             input_tensor = input_tensor.unsqueeze(0)
             if torch.cuda.is_available():
                 input_tensor = input_tensor.cuda()
+
             with torch.no_grad():
                 output = self.model(input_tensor)
                 softmax = nn.Softmax(dim=1)
                 pred_probs = softmax(output).cpu().numpy()[0]
-            index = torch.argmax(output, 1)[0].cpu().item()
+                index = torch.argmax(output, 1)[0].cpu().item()
             result = [identifier, label, self.id_to_class_dict[str(index)]
                       ] + list(pred_probs)
-            my_list.append(result)
+            result_list.append(result)
 
-        schema_columns = [
-            'identifier', 'label', ScoreColumnConstants.ScoredLabelsColumnName
+        # Generate column names
+        column_names = [
+            _IDENTIFIER_NAME, _LABEL_NAME,
+            ScoreColumnConstants.ScoredLabelsColumnName
         ] + [
             f'{ScoreColumnConstants.ScoredProbabilitiesMulticlassColumnNamePattern}_{self.id_to_class_dict[str(i)]}'
             for i in range(len(self.id_to_class_dict))
         ]
-        logger.info(f'schema: {schema_columns}')
-        df = pd.DataFrame(my_list, columns=schema_columns)
-        if df['label'].isnull().any():
-            logger.info("Remove label because input data is not of 'ImageFolder' type")
-            df.drop(columns=['label'], inplace=True)
-        return df
+        logger.info(f'schema: {column_names}')
+        result_df = pd.DataFrame(result_list, columns=column_names)
+        # Remove column _LABEL_NAME if it is None, which means no provided label info
+        if result_df[_LABEL_NAME].isnull().any():
+            logger.info(
+                f"Remove {_LABEL_NAME} because input data is not of 'ImageFolder' type"
+            )
+            result_df.drop(columns=[_LABEL_NAME], inplace=True)
+
+        return result_df
 
     def infer(self, data_path, save_path):
         os.makedirs(save_path, exist_ok=True)
         loader_dir = ImageDirectory.load(data_path)
         logger.info(f'Predicting:')
-        pred_df = self.run(loader_dir)
-        score_columns = generate_score_column_meta(
-            task_type=TaskType.MultiClassification, predict_df=pred_df)
-        pred_dt = DataTable(pred_df)
-        pred_dt.meta_data.score_column_names = score_columns
-        save_data_frame_to_directory(save_path, data=pred_dt.data_frame, schema=pred_dt.meta_data.to_dict())
+        predict_df = self.run(loader_dir)
+        # Generate meta data
+        score_columns = generate_score_column_meta(predict_df=predict_df)
+        label_column_name = _LABEL_NAME if _LABEL_NAME in predict_df.columns else None
+        meta_data = DataFrameSchema(
+            column_attributes=DataFrameSchema.generate_column_attributes(
+                df=predict_df),
+            score_column_names=score_columns,
+            label_column_name=label_column_name)
+        # Save as data_frame_directory
+        save_data_frame_to_directory(save_path,
+                                     data=predict_df,
+                                     schema=meta_data.to_dict())
         logger.info("DataFrame dumped")
 
 
@@ -74,6 +87,4 @@ def entrance(model_path='/mnt/chjinche/projects/saved_model',
 
 
 if __name__ == '__main__':
-    # workaround for import packages without explicit use
-    logger.info(f"Load pyarrow.parquet explicitly: {pq}")
     fire.Fire(entrance)

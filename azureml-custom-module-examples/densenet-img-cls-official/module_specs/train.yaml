@@ -72,7 +72,6 @@ implementation:
         - torchvision==0.4.1
         - fire==0.1.3
         - scipy==1.2.1
-        - sklearn
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/densenet-img-cls-official
     command:
     - python

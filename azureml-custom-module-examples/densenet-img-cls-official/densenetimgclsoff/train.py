@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 from .densenet import DenseNet
 from .utils import (AverageMeter, evaluate, logger, torch_dumper,
                     print_dir_hierarchy_to_log)
-from azureml.studio.core.logger import TimeProfile
+# from azureml.studio.core.logger import TimeProfile
 # from densenet import DenseNet
 # from utils import (AverageMeter, get_transform, evaluate, logger,
 #                     get_stratified_split_index, torch_dumper,
@@ -61,11 +61,8 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
 
 
 def train(model,
-          model_config,
-          idx_to_class_dict,
           train_set,
           valid_set,
-          save_model_path,
           epochs,
           batch_size,
           lr=0.001,
@@ -113,9 +110,8 @@ def train(model,
     logger.info('Start training epochs')
     best_error = 1
     counter = 0
-    best_checkpoint_name = 'best_model.pth'
-    config_file_name = 'model_config.json'
-    id_to_class_file_name = 'id_to_class.json'
+    best_state_dict = model.module.state_dict(
+    ) if torch.cuda.device_count() > 1 else model.state_dict()
     for epoch in range(epochs):
         # scheduler.step()
         _, train_loss, train_error = train_epoch(model=model,
@@ -157,18 +153,18 @@ def train(model,
 
         if is_best:
             logger.info(
-                f'Get better top1 accuracy: {1-best_error:.4f} saving weights to {best_checkpoint_name}'
+                # f'Get better top1 accuracy: {1-best_error:.4f} will saving weights to {best_checkpoint_name}'
+                f'Get better top1 accuracy: {1-best_error:.4f}, best checkpoint will be updated.'
             )
-            dumper = torch_dumper(state_dict, model_config, idx_to_class_dict,
-                                  best_checkpoint_name, config_file_name,
-                                  id_to_class_file_name)
-            save_model_to_directory(save_model_path, dumper)
+            best_state_dict = state_dict
             # shutil.copyfile(checkpoint_path, best_checkpoint_path)
 
         early_stop = True if counter >= patience else False
         if early_stop:
             logger.info("early stopped.")
             break
+
+    return best_state_dict
 
 
 def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
@@ -184,22 +180,23 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
              patience=2):
     logger.info("Start training.")
     to_tensor_transform = transforms.Compose([transforms.ToTensor()])
-    # logger.info(f"data path: {train_data_path}")
-    with TimeProfile(f"Mount/Download dataset to '{train_data_path}'"):
-        print_dir_hierarchy_to_log(train_data_path)
-    with TimeProfile(f"Mount/Download dataset to '{valid_data_path}'"):
-        print_dir_hierarchy_to_log(valid_data_path)
-    # No RandomHorizontalFlip in validation
+    logger.info(f"data path: {train_data_path}")
+    logger.info(f"data path: {valid_data_path}")
+    # Comment to test no walk-through in advance
+    # with TimeProfile(f"Mount/Download dataset to '{train_data_path}'"):
+    #     print_dir_hierarchy_to_log(train_data_path)
+    # with TimeProfile(f"Mount/Download dataset to '{valid_data_path}'"):
+    #     print_dir_hierarchy_to_log(valid_data_path)
     train_set = datasets.ImageFolder(train_data_path,
                                      transform=to_tensor_transform)
-    print(train_set.classes)
+    logger.info(f"Training classes: {train_set.classes}")
     valid_set = datasets.ImageFolder(valid_data_path,
                                      transform=to_tensor_transform)
     # assert the same classes between train_set and valid_set
     logger.info("Made dataset")
     classes = train_set.classes
     num_classes = len(classes)
-    idx_to_class_dict = {i: classes[i] for i in range(num_classes)}
+    id_to_class_dict = {i: classes[i] for i in range(num_classes)}
     logger.info("Start constructing model")
     model = DenseNet(model_type=model_type,
                      pretrained=pretrained,
@@ -211,17 +208,22 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
         'memory_efficient': memory_efficient,
         'num_classes': num_classes
     }
-    train(model=model,
-          model_config=model_config,
-          idx_to_class_dict=idx_to_class_dict,
-          train_set=train_set,
-          valid_set=valid_set,
-          save_model_path=save_model_path,
-          epochs=epochs,
-          batch_size=batch_size,
-          lr=learning_rate,
-          random_seed=random_seed,
-          patience=patience)
+    best_state_dict = train(model=model,
+                            train_set=train_set,
+                            valid_set=valid_set,
+                            epochs=epochs,
+                            batch_size=batch_size,
+                            lr=learning_rate,
+                            random_seed=random_seed,
+                            patience=patience)
+    # Save model file and configs
+    best_checkpoint_name = 'best_model.pth'
+    config_file_name = 'model_config.json'
+    id_to_class_file_name = 'id_to_class.json'
+    dumper = torch_dumper(best_state_dict, model_config, id_to_class_dict,
+                          best_checkpoint_name, config_file_name,
+                          id_to_class_file_name)
+    save_model_to_directory(save_model_path, dumper)
     logger.info('This experiment has been completed.')
 
 

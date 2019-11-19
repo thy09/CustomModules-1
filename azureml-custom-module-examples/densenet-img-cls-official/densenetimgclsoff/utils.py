@@ -1,11 +1,9 @@
 # from sklearn.model_selection import train_test_split
-from torchvision import transforms
 from .densenet import DenseNet
 # from densenet import DenseNet
 import torch
 import os
 import time
-# import numpy as np
 import json
 from azureml.studio.core.logger import logger
 from azureml.studio.core.utils.fileutils import ensure_folder, iter_files
@@ -13,25 +11,39 @@ from azureml.studio.core.logger import module_host_logger as log, indented_loggi
 from pathlib import Path
 
 
-class AverageMeter(object):
-    """
-    Computes and stores the average and current value
-    Copied from: https://github.com/pytorch/examples/blob/master/imagenet/main.py
-    """
-    def __init__(self):
-        self.reset()
+_IDENTIFIER_NAME = 'identifier'
+_LABEL_NAME = 'label'
 
-    def reset(self):
-        self.val = 0
-        self.avg = 0
-        self.sum = 0
-        self.count = 0
 
-    def update(self, val, n=1):
-        self.val = val
-        self.sum += val * n
-        self.count += n
-        self.avg = self.sum / self.count
+class ScoreColumnConstants:
+    # Label and Task Type Region
+    BinaryClassScoredLabelType = "Binary Class Assigned Labels"
+    MultiClassScoredLabelType = "Multi Class Assigned Labels"
+    RegressionScoredLabelType = "Regression Assigned Labels"
+    ClusterScoredLabelType = "Cluster Assigned Labels"
+    ScoredLabelsColumnName = "Scored Labels"
+    ClusterAssignmentsColumnName = "Assignments"
+    # Probability Region
+    CalibratedScoreType = "Calibrated Score"
+    ScoredProbabilitiesColumnName = "Scored Probabilities"
+    ScoredProbabilitiesMulticlassColumnNamePattern = "Scored Probabilities"
+    # Distance Region
+    ClusterDistanceMetricsColumnNamePattern = "DistancesToClusterCenter no."
+
+
+def _filter_column_names_with_prefix(name_list, prefix=''):
+    # if prefix is '', all string.startswith(prefix) is True.
+    if prefix == '':
+        return name_list
+    return [column_name for column_name in name_list if column_name.startswith(prefix)]
+
+
+def generate_score_column_meta(predict_df):
+    score_columns = {x: x for x in _filter_column_names_with_prefix(
+        predict_df.columns.tolist(), prefix=ScoreColumnConstants.ScoredProbabilitiesMulticlassColumnNamePattern)}
+    score_columns[ScoreColumnConstants.MultiClassScoredLabelType] = ScoreColumnConstants.ScoredLabelsColumnName
+    logger.info("Multi-class Classification Model Scored Columns are: ")
+    return score_columns
 
 
 def torch_loader(load_from_dir, model_spec):
@@ -94,28 +106,25 @@ def torch_dumper(state_dict,
     return model_dumper
 
 
-def get_transform():
-    # mean and stdv of imagenet dataset.
-    # Usually if you use case in the same data domain as imagenet,
-    # the mean and std won’t be that different and you can try to use the ImageNet statistics.
-    # todo: If you are dealing with another domain, e.g. medical images,
-    # re-calculate stats on your own data is recommended.
-    mean = [0.485, 0.456, 0.406]
-    stdv = [0.229, 0.224, 0.225]
-    train_transforms = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=stdv, inplace=True),
-    ])
-    test_transforms = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=stdv),
-    ])
-    return train_transforms, test_transforms
+class AverageMeter(object):
+    """
+    Computes and stores the average and current value
+    Copied from: https://github.com/pytorch/examples/blob/master/imagenet/main.py
+    """
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
 
 
 def evaluate(model, loader, print_freq=1, is_test=False):
