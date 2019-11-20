@@ -2,8 +2,16 @@ from shutil import copyfile
 import os
 import random
 import fire
-from .utils import print_dir_hierarchy_to_log
-from azureml.studio.core.logger import TimeProfile
+from pathlib import Path
+from azureml.studio.core.logger import module_host_logger as log, indented_logging_block, TimeProfile
+from azureml.studio.core.utils.fileutils import iter_files
+
+
+def print_dir_hierarchy_to_log(path):
+    log.debug(f"Content of directory {path}:")
+    with indented_logging_block():
+        for f in iter_files(path):
+            log.debug(Path(f).relative_to(path))
 
 
 def split_image_folder(src_path, tgt_train_path, tgt_test_path, thre):
