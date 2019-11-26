@@ -6,7 +6,7 @@ if __name__ == '__main__':
     # Test inference
     print("Testing inference.")
     loaded_generic_model = load_generic_model(
-        path='/mnt/chjinche/projects/saved_model')
+        path='/mnt/chjinche/projects/saved_custom_model')
     loader_dir = ImageDirectory.load('/mnt/chjinche/data/test_data/')
-    result_dfd = loaded_generic_model.predict(loader_dir)
+    result_dfd = loaded_generic_model.predict(loader_dir.iter_images())
     print(f'result_dfd: {result_dfd}')

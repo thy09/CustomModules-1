@@ -154,8 +154,8 @@ def train(model,
     return model
 
 
-def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
-             valid_data_path='/mnt/chjinche/data/output_transformed/',
+def entrance(train_data_path='/mnt/chjinche/data/output_transformed_train/',
+             valid_data_path='/mnt/chjinche/data/output_transformed_test/',
              save_model_path='/mnt/chjinche/projects/saved_custom_model',
              model_type='densenet201',
              pretrained=True,
