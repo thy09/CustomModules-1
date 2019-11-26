@@ -1,19 +1,12 @@
-# Explicitly load pyarrow.parquet in advance since pyarrow depends on New C++ API on Linux, otherwise segmentation fault
-# would occur.
-import pyarrow
+from os.path import dirname, abspath
 from torchvision import datasets, transforms
 from .densenet import DenseNet
-from .utils import (AverageMeter, evaluate, logger, torch_dumper,
-                    print_dir_hierarchy_to_log)
-# from azureml.studio.core.logger import TimeProfile
-# from densenet import DenseNet
-# from utils import (AverageMeter, get_transform, evaluate, logger,
-#                     get_stratified_split_index, torch_dumper,
-#                     print_dir_hierarchy_to_log)
 import time
 import fire
 import torch
-from azureml.studio.core.io.model_directory import save_model_to_directory
+from azureml.designer.model.io import save_pytorch_state_dict_model
+from azureml.designer.model.model_spec.task_type import TaskType
+from .utils import (AverageMeter, evaluate, logger)
 
 
 def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
@@ -110,8 +103,6 @@ def train(model,
     logger.info('Start training epochs')
     best_error = 1
     counter = 0
-    best_state_dict = model.module.state_dict(
-    ) if torch.cuda.device_count() > 1 else model.state_dict()
     for epoch in range(epochs):
         # scheduler.step()
         _, train_loss, train_error = train_epoch(model=model,
@@ -128,8 +119,6 @@ def train(model,
         else:
             is_best = False
 
-        state_dict = model.module.state_dict(
-        ) if torch.cuda.device_count() > 1 else model.state_dict()
         # early stop
         if epoch == 0:
             last_epoch_valid_loss = valid_loss
@@ -156,20 +145,18 @@ def train(model,
                 # f'Get better top1 accuracy: {1-best_error:.4f} will saving weights to {best_checkpoint_name}'
                 f'Get better top1 accuracy: {1-best_error:.4f}, best checkpoint will be updated.'
             )
-            best_state_dict = state_dict
-            # shutil.copyfile(checkpoint_path, best_checkpoint_path)
 
         early_stop = True if counter >= patience else False
         if early_stop:
             logger.info("early stopped.")
             break
 
-    return best_state_dict
+    return model
 
 
 def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
              valid_data_path='/mnt/chjinche/data/output_transformed/',
-             save_model_path='/mnt/chjinche/projects/saved_model',
+             save_model_path='/mnt/chjinche/projects/saved_custom_model',
              model_type='densenet201',
              pretrained=True,
              memory_efficient=False,
@@ -198,32 +185,30 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed/',
     num_classes = len(classes)
     id_to_class_dict = {i: classes[i] for i in range(num_classes)}
     logger.info("Start constructing model")
-    model = DenseNet(model_type=model_type,
-                     pretrained=pretrained,
-                     memory_efficient=memory_efficient,
-                     num_classes=num_classes)
     model_config = {
         'model_type': model_type,
         'pretrained': pretrained,
         'memory_efficient': memory_efficient,
         'num_classes': num_classes
     }
-    best_state_dict = train(model=model,
-                            train_set=train_set,
-                            valid_set=valid_set,
-                            epochs=epochs,
-                            batch_size=batch_size,
-                            lr=learning_rate,
-                            random_seed=random_seed,
-                            patience=patience)
-    # Save model file and configs
-    best_checkpoint_name = 'best_model.pth'
-    config_file_name = 'model_config.json'
-    id_to_class_file_name = 'id_to_class.json'
-    dumper = torch_dumper(best_state_dict, model_config, id_to_class_dict,
-                          best_checkpoint_name, config_file_name,
-                          id_to_class_file_name)
-    save_model_to_directory(save_model_path, dumper)
+    model = DenseNet(**model_config)
+    model = train(model=model,
+                  train_set=train_set,
+                  valid_set=valid_set,
+                  epochs=epochs,
+                  batch_size=batch_size,
+                  lr=learning_rate,
+                  random_seed=random_seed,
+                  patience=patience)
+    # Save model file, configs and install dependencies
+    local_dependencies = [dirname(dirname(abspath(__file__)))]
+    print(local_dependencies)
+    save_pytorch_state_dict_model(model,
+                                  init_params=model_config,
+                                  path=save_model_path,
+                                  task_type=TaskType.MultiClassification,
+                                  label_map=id_to_class_dict,
+                                  local_dependencies=local_dependencies)
     logger.info('This experiment has been completed.')
 
 

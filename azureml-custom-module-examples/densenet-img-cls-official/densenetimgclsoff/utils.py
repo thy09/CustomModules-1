@@ -1,6 +1,6 @@
 # from sklearn.model_selection import train_test_split
+# from .densenet import DenseNet
 from .densenet import DenseNet
-# from densenet import DenseNet
 import torch
 import os
 import time
@@ -71,7 +71,7 @@ def torch_loader(load_from_dir, model_spec):
 
 def torch_dumper(state_dict,
                  model_config,
-                 idx_to_class_dict,
+                 id_to_class_dict,
                  model_file_name=None,
                  config_file_name=None,
                  id_to_class_file_name=None):
@@ -94,7 +94,7 @@ def torch_dumper(state_dict,
         ensure_folder(os.path.dirname(os.path.abspath(id_to_class_full_path)))
         torch.save(state_dict, model_full_path)
         json.dump(model_config, open(config_full_path, "w"))
-        json.dump(idx_to_class_dict, open(id_to_class_full_path, "w"))
+        json.dump(id_to_class_dict, open(id_to_class_full_path, "w"))
         model_spec = {
             'model_type': 'torch_state_dict',
             'model_file_name': model_file_name,
