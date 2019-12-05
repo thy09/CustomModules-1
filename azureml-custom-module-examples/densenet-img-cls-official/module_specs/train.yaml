@@ -1,6 +1,6 @@
-name: Train DenseNet Image Classification
+name: Train DenseNet Image Classification (built-in score version)
 id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
-version: 0.0.1.7
+version: 0.0.1.1
 isDeterministic: true
 category: Model Training\Train
 description: Creates a pretrained DenseNet for image classification and finetunes it
@@ -68,6 +68,7 @@ implementation:
       - pip:
         - azureml-defaults
         - azureml-designer-core==0.0.25
+        - azureml-designer-model==0.1.20191126.2
         - torch==1.3
         - torchvision==0.4.1
         - fire==0.1.3
