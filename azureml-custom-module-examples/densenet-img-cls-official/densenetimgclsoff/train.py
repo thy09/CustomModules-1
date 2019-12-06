@@ -1,12 +1,13 @@
-from os.path import dirname, abspath
-from torchvision import datasets, transforms
+from pathlib import Path
 from .densenet import DenseNet
+from .utils import AverageMeter, evaluate
 import time
 import fire
 import torch
 from azureml.designer.model.io import save_pytorch_state_dict_model
 from azureml.designer.model.model_spec.task_type import TaskType
-from .utils import (AverageMeter, evaluate, logger)
+from azureml.studio.core.io.image_directory import ImageDirectory
+from azureml.studio.core.logger import logger
 
 
 def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
@@ -39,7 +40,6 @@ def train_epoch(model, loader, optimizer, epoch, epochs, print_freq=1):
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-        # print stats
         if batch_idx % print_freq == 0:
             res = '\t'.join([
                 f'Epoch: [{epoch + 1}/{epochs}]',
@@ -63,7 +63,7 @@ def train(model,
           momentum=0.9,
           random_seed=None,
           patience=10):
-    logger.info('torch setting')
+    logger.info('Torch setting')
     # torch cuda random seed setting
     if random_seed is not None:
         if torch.cuda.is_available():
@@ -98,18 +98,18 @@ def train(model,
                                 momentum=momentum,
                                 nesterov=True,
                                 weight_decay=wd)
-    # scheduler = torch.optim.lr_scheduler.MultiStepLR(
-    #     optimizer, milestones=[0.5 * epochs, 0.75 * epochs], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer, milestones=[0.5 * epochs, 0.75 * epochs], gamma=0.1)
     logger.info('Start training epochs')
     best_error = 1
     counter = 0
     for epoch in range(epochs):
-        # scheduler.step()
         _, train_loss, train_error = train_epoch(model=model,
                                                  loader=train_loader,
                                                  optimizer=optimizer,
                                                  epoch=epoch,
                                                  epochs=epochs)
+        scheduler.step()
         _, valid_loss, valid_error, _ = evaluate(model=model,
                                                  loader=valid_loader)
         # Determine if model is the best
@@ -132,14 +132,11 @@ def train(model,
         logger.info(
             f'valid loss did not decrease consecutively for {counter} epoch')
         # todo: save checkpoint files, but removed now to increase web service deployment efficiency
-        # checkpoint_path = os.path.join(save_model_path, 'model_epoch_{}.pth'.format(state["epoch"]))
-        # torch.save(state["state_dict"], checkpoint_path)
         logger.info(','.join([
             f'Epoch {epoch + 1:d}', f'train_loss {train_loss:.6f}',
             f'train_error {train_error:.6f}', f'valid_loss {valid_loss:.5f}',
             f'valid_error {valid_error:.5f}'
         ]))
-
         if is_best:
             logger.info(
                 # f'Get better top1 accuracy: {1-best_error:.4f} will saving weights to {best_checkpoint_name}'
@@ -148,15 +145,15 @@ def train(model,
 
         early_stop = True if counter >= patience else False
         if early_stop:
-            logger.info("early stopped.")
+            logger.info("Early stopped.")
             break
 
     return model
 
 
-def entrance(train_data_path='/mnt/chjinche/data/output_transformed_train/',
-             valid_data_path='/mnt/chjinche/data/output_transformed_test/',
-             save_model_path='/mnt/chjinche/projects/saved_custom_model',
+def entrance(train_data_path='/mnt/chjinche/data/out_transform_train/',
+             valid_data_path='/mnt/chjinche/data/out_transform_test/',
+             save_model_path='/mnt/chjinche/projects/saved_model',
              model_type='densenet201',
              pretrained=True,
              memory_efficient=False,
@@ -166,23 +163,16 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed_train/',
              random_seed=231,
              patience=2):
     logger.info("Start training.")
-    to_tensor_transform = transforms.Compose([transforms.ToTensor()])
     logger.info(f"data path: {train_data_path}")
     logger.info(f"data path: {valid_data_path}")
-    # Comment to test no walk-through in advance
-    # with TimeProfile(f"Mount/Download dataset to '{train_data_path}'"):
-    #     print_dir_hierarchy_to_log(train_data_path)
-    # with TimeProfile(f"Mount/Download dataset to '{valid_data_path}'"):
-    #     print_dir_hierarchy_to_log(valid_data_path)
-    train_set = datasets.ImageFolder(train_data_path,
-                                     transform=to_tensor_transform)
+    train_set = ImageDirectory.load(train_data_path).to_torchvision_dataset()
     logger.info(f"Training classes: {train_set.classes}")
-    valid_set = datasets.ImageFolder(valid_data_path,
-                                     transform=to_tensor_transform)
-    # assert the same classes between train_set and valid_set
+    valid_set = ImageDirectory.load(valid_data_path).to_torchvision_dataset()    
+    # assert the same classes between train_set and valid_set.
     logger.info("Made dataset")
     classes = train_set.classes
     num_classes = len(classes)
+    # TODO: use image directory api to get id-to-class mapping.
     id_to_class_dict = {i: classes[i] for i in range(num_classes)}
     logger.info("Start constructing model")
     model_config = {
@@ -201,8 +191,9 @@ def entrance(train_data_path='/mnt/chjinche/data/output_transformed_train/',
                   random_seed=random_seed,
                   patience=patience)
     # Save model file, configs and install dependencies
-    local_dependencies = [dirname(dirname(abspath(__file__)))]
-    print(local_dependencies)
+    # TODO: designer.model could support pathlib.Path
+    local_dependencies = [str(Path(__file__).parent.parent)]
+    logger.info(f'Ouput local dependencies {local_dependencies}')
     save_pytorch_state_dict_model(model,
                                   init_params=model_config,
                                   path=save_model_path,
