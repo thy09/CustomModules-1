@@ -1,7 +1,6 @@
 import torch
 import time
 from azureml.studio.core.logger import logger
-from sklearn.model_selection import train_test_split
 
 
 class AverageMeter(object):
@@ -70,10 +69,3 @@ def evaluate(model, loader, print_freq=1, is_test=False):
                 logger.info(res)
     # Return summary statistics
     return batch_time.avg, losses.avg, error.avg, (target_list, pred_top1_list)
-
-
-def get_stratified_split_list(lst, fraction):
-    labels = [d.get('class', '') for d in lst]
-    train_lst, test_lst, train_label, test_label = train_test_split(
-        lst, labels, stratify=labels, train_size=fraction)
-    return train_lst, test_lst
