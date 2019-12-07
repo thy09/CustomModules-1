@@ -1,0 +1,63 @@
+name: Score Modern Model
+id: 412abbd1-794f-4888-a72f-a16220b9a521
+version: 0.0.1.0
+category: Machine Learning\Score
+description: Buildin Score Module for a set of limited flavors
+inputs:
+- name: Trained model
+  type: ModelDirectory
+  port: true
+  description: Trained predictive model
+- name: Dataset
+  type: ImageDirectory
+  port: True
+  description: input data to score
+- name: Append score columns to output
+  type: Boolean
+  default: true
+  description: If checked, append score columns to the result dataset, otherwise only
+    return the scores and true labels if available.
+outputs:
+- name: Scored dataset
+  type: DataFrameDirectory
+  description: Dataset with obtained scores
+implementation:
+  container:
+    runConfig:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: true
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.8
+      - conda
+      - pip:
+        # Remove extra-index-url because register tool automatically add that
+        - azureml-defaults
+        - azureml-designer-model==0.1.20191127.3
+        - azureml-designer-score==0.1.20191126.2
+        - azureml-designer-core[image]==0.0.25.*
+        - cloudpickle
+        - PyYAML
+        - click
+        - pandas
+        - pyarrow==0.12.1
+    command:
+    - python
+    - -m
+    - azureml.designer.score.score.module_invoker
+    args:
+    - --trained-model
+    - inputValue: Trained model
+    - --dataset
+    - inputValue: Dataset
+    - --append-score-columns-to-output
+    - inputValue: Append score columns to output
+    - --scored-dataset
+    - outputPath: Scored dataset
+  invoking:
+    module: azureml.designer.score.score.builtin_score_module
+    class: BuiltinScoreModule
+    func: run

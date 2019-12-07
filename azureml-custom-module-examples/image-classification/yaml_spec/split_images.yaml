@@ -1,0 +1,49 @@
+name: Split Images
+id: e36a620f-4bcf-4343-8ec2-c32d709f7b40
+version: 0.0.1.3
+category: Image Classification
+description: Split images.
+inputs:
+- name: Input image directory
+  type: ImageDirectory
+  port: True
+  description: Input image directory.
+- name: Fraction of images in the first output
+  type: Float
+  default: 0.9
+  description: Fraction of images in the first output.
+outputs:
+- name: Output image directory1
+  type: ImageDirectory
+  description: First output image directory.
+- name: Output image directory2 
+  type: ImageDirectory
+  description: Second output image directory.
+implementation:
+  container:
+    runConfig:
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.8
+      - pip:
+        - azureml-defaults
+        - azureml-designer-core[image]==0.0.25.*
+        - scikit-learn==0.21.3
+        - fire==0.1.3
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/image-classification
+    command:
+    - python
+    - -m
+    - imageclassification.split_images
+    args:
+    - --src-path
+    - inputValue: Input image directory
+    - --fraction
+    - inputValue: Fraction of images in the first output
+    - --tgt-train-path
+    - outputPath: Output image directory1
+    - --tgt-test-path
+    - outputPath: Output image directory2

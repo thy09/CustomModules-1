@@ -1,0 +1,131 @@
+name: Init Image Transformation
+id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
+version: 0.0.1.2
+category: Image Classification
+description: Initialize image transformation.
+inputs:
+- name: Resize size
+  type: Int
+  default: 256
+  description: Resize the input PIL Image to the given size.
+- name: Center crop size
+  type: Int
+  default: 224
+  description: Crops the given PIL Image at the center.
+- name: Five crop
+  type: Boolean
+  default: False
+  description: Crop the given PIL Image into four corners and the central crop.
+- name: Ten crop
+  type: Boolean
+  default: False
+  description: Crop the given PIL Image into four corners and the central crop plus the flipped version of these (horizontal flipping is used by default).
+- name: Pad
+  type: Boolean
+  default: False
+  description: Pad the given PIL Image on all sides with the given "pad" value.
+- name: Color jitter
+  type: Boolean
+  default: False
+  description: Randomly change the brightness, contrast and saturation of an image.
+- name: Grayscale
+  type: Boolean
+  default: False
+  description: Convert image to grayscale.
+- name: Random crop
+  type: Boolean
+  default: False
+  description: Crop the given PIL Image at a random location.
+- name: Random horizontal flip
+  type: Boolean
+  default: True
+  description: Horizontally flip the given PIL Image randomly with a given probability.
+- name: Random vertical flip
+  type: Boolean
+  default: False
+  description: Vertically flip the given PIL Image randomly with a given probability.
+- name: Random resized crop
+  type: Boolean
+  default: False
+  description: Crop the given PIL Image to random size and aspect ratio.
+- name: Random rotation
+  type: Boolean
+  default: False
+  description: Rotate the image by angle.
+- name: Random affine
+  type: Boolean
+  default: False
+  description: Random affine transformation of the image keeping center invariant.
+- name: Random grayscale
+  type: Boolean
+  default: False
+  description: Randomly convert image to grayscale with a probability of p (default 0.1).
+- name: Random perspective
+  type: Boolean
+  default: False
+  description: Performs Perspective transformation of the given PIL Image randomly with a given probability.
+- name: Random erasing
+  type: Boolean
+  default: False
+  description: Randomly selects a rectangle region in an image and erases its pixels.
+- name: Normalize
+  type: Boolean
+  default: True
+  description: Normalize to make mean and std close to 0.
+outputs:
+- name: Output image transformation
+  type: TransformationDirectory
+  description: Output image transformation.
+implementation:
+  container:
+    conda:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.8
+      - pip:
+        - azureml-designer-core==0.0.25
+        - fire==0.1.3
+        - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/image-classification
+    command:
+    - python
+    - -m
+    - imageclassification.init_image_transform
+    args:
+    - --resize-size
+    - inputValue: Resize size
+    - --center-crop-size
+    - inputValue: Center crop size
+    - --five-crop
+    - inputValue: Five crop
+    - --ten-crop
+    - inputValue: Ten crop    
+    - --pad
+    - inputValue: Pad
+    - --color_jitter
+    - inputValue: Color jitter    
+    - --grayscale
+    - inputValue: Grayscale
+    - --random_crop
+    - inputValue: Random crop    
+    - --random_horizontal_flip
+    - inputValue: Random horizontal flip
+    - --random_vertical_flip
+    - inputValue: Random vertical flip    
+    - --random_resized_crop
+    - inputValue: Random resized crop
+    - --random_rotation
+    - inputValue: Random rotation    
+    - --random_affine
+    - inputValue: Random affine
+    - --random_grayscale
+    - inputValue: Random grayscale    
+    - --random_perspective
+    - inputValue: Random perspective
+    - --random_erasing
+    - inputValue: Random erasing
+    - --normalize
+    - inputValue: Normalize
+    - --output-path
+    - outputPath: Output image transformation
