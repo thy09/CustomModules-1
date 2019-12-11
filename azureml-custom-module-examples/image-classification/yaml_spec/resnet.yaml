@@ -1,6 +1,6 @@
 name: ResNet
 id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
-version: 0.0.1.0
+version: 0.0.1.3
 isDeterministic: true
 category: Image Classification
 description: Initialize ResNet model.
@@ -40,8 +40,7 @@ implementation:
       - python=3.6.8
       - pip:
         - azureml-defaults
-        - azureml-designer-core[image]==0.0.25.*
-        - azureml-designer-model==0.1.20191126.2
+        - azureml-designer-core[image]==0.0.25.post8015897
         - torch==1.3
         - torchvision==0.4.1
         - fire==0.1.3

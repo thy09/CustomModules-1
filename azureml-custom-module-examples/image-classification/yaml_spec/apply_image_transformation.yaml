@@ -1,6 +1,6 @@
 name: Apply Image Transformation
 id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
-version: 0.0.1.7
+version: 0.0.1.10
 category: Image Classification
 description: Transform input image with input transform.
 inputs:
@@ -32,7 +32,7 @@ implementation:
       - python=3.6.8
       - pip:
         - azureml-defaults
-        - azureml-designer-core[image]==0.0.25.*
+        - azureml-designer-core[image]==0.0.25.post8015897
         - torchvision==0.4.1
         - fire==0.1.3
         - git+https://github.com/chjinche/CustomModules-1.git@master#subdirectory=azureml-custom-module-examples/image-classification

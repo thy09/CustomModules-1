@@ -1,6 +1,6 @@
 name: Score Modern Model
 id: 412abbd1-794f-4888-a72f-a16220b9a521
-version: 0.0.1.0
+version: 0.0.1.5
 category: Machine Learning\Score
 description: Buildin Score Module for a set of limited flavors
 inputs:
@@ -36,9 +36,9 @@ implementation:
       - pip:
         # Remove extra-index-url because register tool automatically add that
         - azureml-defaults
-        - azureml-designer-model==0.1.20191127.3
-        - azureml-designer-score==0.1.20191126.2
-        - azureml-designer-core[image]==0.0.25.*
+        - azureml-designer-model==0.1.20191209.4
+        - azureml-designer-score==0.1.20191209.4
+        - azureml-designer-core[image]==0.0.25.post8015897
         - cloudpickle
         - PyYAML
         - click
