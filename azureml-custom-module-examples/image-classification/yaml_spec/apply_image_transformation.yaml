@@ -1,6 +1,6 @@
 name: Apply Image Transformation
 id: 5e968de0-d172-4526-a319-0d8ca5bd4eb6
-version: 0.0.1.10
+version: 0.0.1.11
 category: Image Classification
 description: Transform input image with input transform.
 inputs:
@@ -50,6 +50,6 @@ implementation:
     - --output-path
     - outputPath: Output image directory
   invoking:
-    module: densenetimgclsoff.apply_image_transformation
+    module: imageclassification.apply_image_transformation
     class: ApplyImageTransform
     func: apply
