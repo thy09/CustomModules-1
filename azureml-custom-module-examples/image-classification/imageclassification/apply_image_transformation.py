@@ -6,7 +6,8 @@ from azureml.studio.core.io.transformation_directory import ImageTransformationD
 
 
 class ApplyImageTransform:
-    def __init__(self, input_transform_path, meta):
+    # Follow webservice api contract
+    def __init__(self, input_transform_path, meta={}):
         transform_type = meta.get('transform_type', None)
         self.transform = self.get_transforms(input_transform_path, transform_type)
         logger.info(f'Set transform_type {transform_type}, transforms {self.transform}.')
@@ -25,7 +26,8 @@ class ApplyImageTransform:
             # Will never throw this error thanks to UI constraints
             raise TypeError(f"Unsupported transform_type type {transform_type}")
 
-    def apply(self, loaded_dir):
+    # Follow webservice api contract
+    def apply(self, loaded_dir, meta={}):
         logger.info(f'Applying transform:')
         transformed_dir = loaded_dir.apply_to_images(
             transform=lambda image: self.unloader(
