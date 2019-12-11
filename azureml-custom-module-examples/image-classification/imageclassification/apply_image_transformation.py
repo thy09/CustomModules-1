@@ -6,7 +6,8 @@ from azureml.studio.core.io.transformation_directory import ImageTransformationD
 
 
 class ApplyImageTransform:
-    def __init__(self, input_transform_path, transform_type):
+    def __init__(self, input_transform_path, meta):
+        transform_type = meta.get('transform_type', None)
         self.transform = self.get_transforms(input_transform_path, transform_type)
         logger.info(f'Set transform_type {transform_type}, transforms {self.transform}.')
         self.unloader = transforms.ToPILImage()
@@ -43,7 +44,8 @@ def entrance(transform_type,
              input_transform_path='../init_transform/',
              input_image_path='../image_dir_test/',
              output_path='../transform_test/'):
-    task = ApplyImageTransform(input_transform_path, transform_type)
+    meta = {'transform_type': transform_type}
+    task = ApplyImageTransform(input_transform_path, meta)
     task.apply_image_transformation(input_image_path, output_path)
 
 
