@@ -1,4 +1,5 @@
 import fire
+import sys
 from torchvision import transforms
 from azureml.studio.core.logger import logger
 from azureml.studio.core.io.image_directory import ImageDirectory
@@ -52,4 +53,5 @@ def entrance(transform_type,
 
 
 if __name__ == '__main__':
+    print("Args=", sys.argv)
     fire.Fire(entrance)
